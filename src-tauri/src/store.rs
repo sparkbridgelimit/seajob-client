@@ -8,11 +8,11 @@ use tauri::AppHandle;
 
 static APP: OnceLock<AppHandle<Wry>> = OnceLock::new();
 
-pub fn init_app_handle (app: AppHandle<tauri::Wry>) {
+pub fn init_app_handle (app: AppHandle<Wry>) {
     APP.set(app).expect("Failed to set AppHandle");
 }
 
-pub fn get_app_handle () -> &'static AppHandle<tauri::Wry> {
+pub fn get_app_handle () -> &'static AppHandle<Wry> {
     APP.get().expect("AppHandle is not initialized")
 }
 
@@ -20,6 +20,7 @@ pub fn get_app_handle () -> &'static AppHandle<tauri::Wry> {
 pub struct AppSettings {
     pub token: String,
 }
+
 
 impl AppSettings {
     pub fn load_from_store<R: tauri::Runtime>(

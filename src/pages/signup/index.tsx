@@ -2,7 +2,6 @@ import { signUp } from "@/api/auth";
 import { isTauri } from "@/helper";
 import router from "@/router";
 import { Form, Input, Button, message } from "antd";
-import { duration } from "moment";
 import { useState } from "react";
 import { Store } from "tauri-plugin-store-api";
 
@@ -19,9 +18,9 @@ const SignUp = () => {
         username: values.username,
         password: values.password,
       });
-      debugger
       localStorage.setItem("token", data.token);
       if (isTauri()) {
+        console.log("isTauri");
         await store.set("token", data.token);
         await store.save();
       }

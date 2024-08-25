@@ -1,9 +1,10 @@
 import { signIn } from "@/api/auth";
 import router from "@/router";
-import { Form, Input, message } from "antd";
+import { Form, Input, message, Space } from "antd";
 import { useState } from "react";
 import { Store } from "tauri-plugin-store-api";
-import { isTauri } from '@/helper';
+import { isTauri } from "@/helper";
+import { Link } from "react-router-dom";
 
 const store = new Store(".settings.json");
 
@@ -23,7 +24,6 @@ export default function SignIn() {
         await store.set("token", data.token);
         await store.save();
       }
-
       message.success("登陆成功，正在跳转...");
       // 跳转到首页
       router.navigate("/plan");
@@ -60,7 +60,10 @@ export default function SignIn() {
         >
           <Input.Password />
         </Form.Item>
-        <button type="submit">登陆</button>
+        <Space>
+          <button type="submit">登陆</button>
+          <Link to="/signup">注册新账号</Link>
+        </Space>
       </Form>
     </div>
   );

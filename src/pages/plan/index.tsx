@@ -10,6 +10,7 @@ import {
 } from "@/api/job_define";
 import AddJobDefineModal from "./add-job-model";
 import router from "@/router";
+import { signOut } from "@/api/auth";
 
 function Plan() {
   const [data, setData] = useState([]);
@@ -166,6 +167,13 @@ function Plan() {
     setIsAddModalOpen(true);
   };
 
+  const signoutHandler = async () => {
+    const res = await signOut();
+    console.log(res);
+    localStorage.removeItem("token");
+    router.navigate("/signin");
+  };
+
   const onAddJobDefineConfirm = async (values: any) => {
     console.log("添加投递计划", values);
     const key_kills = values.key_kills?.split(",") || [];
@@ -199,6 +207,9 @@ function Plan() {
       >
         <Button type="default" onClick={() => addJobDefineHandler()}>
           添加
+        </Button>
+        <Button type="default" onClick={() => signoutHandler()}>
+          登出
         </Button>
       </div>
       <Table dataSource={data} rowKey="id" columns={columns} />

@@ -12,7 +12,7 @@
   "tauri": {
     "allowlist": {
       "window": {
-          "setFullscreen": true
+          "setFullscreen": false
       },
       "all": true,
       "http": {
@@ -27,7 +27,7 @@
         "title": "seajob-client",
         "width": 1440,
         "height": 900,
-        "fullscreen": true
+        "fullscreen": false
       }
     ],
     "security": {
