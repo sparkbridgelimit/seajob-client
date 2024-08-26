@@ -1,3 +1,4 @@
+import { get_token } from "@/helper";
 import router from "@/router";
 
 export interface IRequestProps {
@@ -16,7 +17,8 @@ export async function request({
 }: IRequestProps) {
   const url = build_path(app, path, env);
 
-  const token = window.localStorage.getItem('token');
+  const token = await get_token();
+  console.log('token:', token);
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + token,

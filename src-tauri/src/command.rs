@@ -1,10 +1,14 @@
 use crate::login;
-use log::info;
-use tauri::{AppHandle, Manager};
-use crate::store::AppState;
 use crate::login::check_auth;
+use crate::service::job_define::{
+    create_task, save_cookie, JobDefineRunRequest, JobDefineSaveCookieRequest,
+};
+use crate::store;
 use crate::task;
-use crate::service::job_define::{create_task, JobDefineRunRequest, JobDefineSaveCookieRequest, save_cookie};
+
+use log::info;
+use serde_json::Value;
+use tauri::{AppHandle, Manager};
 
 pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
     let randkey = login::get_randkey().await.map_err(|e| e.to_string())?;
@@ -58,6 +62,11 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
     }
 }
 
+/// 先查询上一个cookie是否有效, 有效则创建任务
+/// 无效则生成新的cookie
+/// 保存cookie
+/// 创建任务
+/// 运行任务
 #[tauri::command]
 pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
     info!("运行任务的 ID: {}", id);
@@ -66,6 +75,7 @@ pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
         job_define_id: id,
         target_num: 1,
     };
+
     // 创建任务
     let task_result = create_task(create_task_req)
         .await
@@ -73,8 +83,14 @@ pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
     info!("Task created successfully: {:?}", task_result);
 
     // 检查 wt2_cookie，如果存在并且有效，直接运行任务
-    if !task_result.wt2_cookie.is_empty() && check_auth(&task_result.wt2_cookie).await.map_err(|e| e.to_string())? {
-        return task::run_job(app, task_result.clone()).await.map_err(|e| e.to_string());
+    if !task_result.wt2_cookie.is_empty()
+        && check_auth(&task_result.wt2_cookie)
+            .await
+            .map_err(|e| e.to_string())?
+    {
+        return task::run_job(app, task_result.clone())
+            .await
+            .map_err(|e| e.to_string());
     }
 
     // 没有cookie则生成
@@ -83,7 +99,8 @@ pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
     match cookie_res {
         Ok(ref cookie) => {
             info!("cookie {:?}", cookie);
-            app.emit_all("scan-success", ()).map_err(|e| e.to_string())?;
+            app.emit_all("scan-success", ())
+                .map_err(|e| e.to_string())?;
         }
         Err(_) => {
             app.emit_all("scan-fail", ()).map_err(|e| e.to_string())?; // 转换错误类型
@@ -95,9 +112,40 @@ pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
         cookie: cookie_res.clone().unwrap_or_default(),
     };
 
-    save_cookie(save_cookie_req).await.map_err(|e| e.to_string())?;
+    save_cookie(save_cookie_req)
+        .await
+        .map_err(|e| e.to_string())?;
 
-    task::run_job(app, task_result).await.map_err(|e| e.to_string())?;
+    task::run_job(app, task_result)
+        .await
+        .map_err(|e| e.to_string())?;
 
+    Ok(())
+}
+
+#[tauri::command]
+pub fn set_token(token: String) -> Result<(), String> {
+    info!("设置token: {}", token);
+    let _ = store::set("token", token);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn get_token() -> Result<String, String> {
+    // 从 store 中获取 token
+    let token = match store::get("token") {
+        Some(Value::String(token)) => Ok(token),
+        Some(_) => Err("Stored value is not a string".to_string()),
+        None => Err("Token not found".to_string()),
+    }
+    .map_err(|e| e.to_string())?;
+    info!("获取token {}", token);
+    Ok(token)
+}
+
+#[tauri::command]
+pub fn clear_token() -> Result<(), String> {
+    info!("清除token");
+    let _ = store::delete("token");
     Ok(())
 }

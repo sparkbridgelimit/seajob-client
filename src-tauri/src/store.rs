@@ -1,61 +1,48 @@
+use serde_json::{json, Value};
 use std::sync::Mutex;
-use tauri::{App, Manager, Wry};
-use tauri_plugin_store::{Store, StoreBuilder, StoreCollection};
-
+use tauri::Wry;
+use tauri_plugin_store::Store;
 
 use std::sync::OnceLock;
-use tauri::AppHandle;
 
-static APP: OnceLock<AppHandle<Wry>> = OnceLock::new();
+static STORE: OnceLock<Mutex<Store<Wry>>> = OnceLock::new();
 
-pub fn init_app_handle (app: AppHandle<Wry>) {
-    APP.set(app).expect("Failed to set AppHandle");
+// 初始化 STORE
+pub fn init_store(store: Store<Wry>) {
+    // 只初始化一次
+    STORE.set(Mutex::new(store)).expect("Failed to initialize STORE");
 }
 
-pub fn get_app_handle () -> &'static AppHandle<Wry> {
-    APP.get().expect("AppHandle is not initialized")
+// 获取 STORE 的引用
+pub fn get_store() -> &'static Mutex<Store<Wry>> {
+    STORE.get().expect("STORE is not initialized")
 }
 
-#[derive(Debug, Clone)]
-pub struct AppSettings {
-    pub token: String,
+/// 自动保存的 set 函数
+pub fn set(key: &str, value: String) -> Result<(), String> {
+    let store = get_store();
+    let mut store = store.lock().map_err(|e| format!("Failed to lock store: {}", e))?;
+    
+    store.insert(key.to_string(), json!(value)).map_err(|e| format!("Failed to insert value: {}", e))?;
+    store.save().map_err(|e| format!("Failed to save store: {}", e))?;
+    
+    Ok(())
 }
 
-
-impl AppSettings {
-    pub fn load_from_store<R: tauri::Runtime>(
-        store: &Store<R>,
-    ) -> Result<Self, Box<dyn std::error::Error>> {
-        let token = store
-            .get("appSettings.token")
-            .and_then(|v| v.as_str().map(|s| s.to_string()))
-            .unwrap_or_else(|| "".to_string());
-
-        Ok(AppSettings {
-            token,
-        })
-    }
+/// 从 Store 中获取值的 get 函数
+pub fn get(key: &str) -> Option<Value> {
+    let store = get_store();
+    let store = store.lock().ok()?;
+    
+    store.get(key).cloned()
 }
 
-pub struct AppState {
-    pub store: Mutex<Store<Wry>>,
-}
-
-pub fn setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
-    init_app_handle(app.handle());
-    let _stores = app.app_handle().state::<StoreCollection<Wry>>();
-    // Init store and load it from disk
-    let mut store = StoreBuilder::new(app.handle(), "settings.json".parse()?).build();
-
-    // If there are no saved settings yet, this will return an error so we ignore the return value.
-    let _ = store.load();
-
-    let _app_settings = AppSettings::load_from_store(&store);
-
-    // 将 settings 存储到应用状态中
-    app.manage(AppState {
-        store: Mutex::new(store),
-    });
-
+pub fn delete(key: &str) -> Result<(), String> {
+    let store = get_store();
+    let mut store = store.lock().map_err(|e| format!("Failed to lock store: {}", e))?;
+    
+    store.delete(key).map_err(|e| format!("Failed to remove value: {}", e))?;
+    store.save().map_err(|e| format!("Failed to save store: {}", e))?;
+    
     Ok(())
 }

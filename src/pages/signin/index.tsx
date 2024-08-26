@@ -3,7 +3,7 @@ import router from "@/router";
 import { Form, Input, message, Space } from "antd";
 import { useState } from "react";
 import { Store } from "tauri-plugin-store-api";
-import { isTauri } from "@/helper";
+import { isTauri, set_token } from "@/helper";
 import { Link } from "react-router-dom";
 
 const store = new Store(".settings.json");
@@ -19,11 +19,7 @@ export default function SignIn() {
         username: values.username,
         password: values.password,
       });
-      localStorage.setItem("token", data.token);
-      if (isTauri()) {
-        await store.set("token", data.token);
-        await store.save();
-      }
+      set_token(data.token);
       message.success("登陆成功，正在跳转...");
       // 跳转到首页
       router.navigate("/plan");

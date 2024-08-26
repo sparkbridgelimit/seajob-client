@@ -3,20 +3,22 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use log::info;
 use std::fs::File;
-use std::io::{BufReader, BufWriter};
+use std::io::BufReader;
 use reqwest::{Client, ClientBuilder, header::{HeaderMap, HeaderValue, USER_AGENT}};
 use reqwest_cookie_store::{CookieStore, CookieStoreMutex};
 use serde_json::Value;
 use uuid::Uuid;
 use once_cell::sync::Lazy;
-use std::error::{Error as StdError, Error};
+use std::error::Error;
 
 #[derive(Deserialize)]
+#[allow(non_snake_case)]
 struct RandKeyResponse {
     zpData: Option<ZpData>,
 }
 
 #[derive(Deserialize)]
+#[allow(non_snake_case)]
 struct ZpData {
     #[warn(non_snake_case)]
     qrId: Option<String>,
@@ -114,15 +116,6 @@ pub async fn wait_confirm(uuid: &str) -> Result<bool, reqwest::Error> {
     let response = CLIENT.get(&url).send().await?;
     info!("{}", response.text().await?);
     Ok(true)
-}
-
-pub fn save_cookie_store() -> Result<(), Box<dyn StdError + Send + Sync>> {
-    let store = COOKIE_STORE.lock().unwrap();
-    let mut writer = File::create("cookies.json")
-        .map(BufWriter::new)
-        .unwrap();
-    store.save_json(&mut writer).unwrap();
-    Ok(())
 }
 
 pub async fn dispatch_qrcode(uuid: &str) -> Result<HashMap<String, String>, reqwest::Error> {

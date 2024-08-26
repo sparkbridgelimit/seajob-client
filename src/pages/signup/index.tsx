@@ -1,11 +1,8 @@
 import { signUp } from "@/api/auth";
-import { isTauri } from "@/helper";
+import { isTauri, set_token } from "@/helper";
 import router from "@/router";
 import { Form, Input, Button, message } from "antd";
 import { useState } from "react";
-import { Store } from "tauri-plugin-store-api";
-
-const store = new Store(".settings.json");
 
 const SignUp = () => {
   const [form] = Form.useForm();
@@ -18,12 +15,7 @@ const SignUp = () => {
         username: values.username,
         password: values.password,
       });
-      localStorage.setItem("token", data.token);
-      if (isTauri()) {
-        console.log("isTauri");
-        await store.set("token", data.token);
-        await store.save();
-      }
+      set_token(data.token);
       // 存到tauri
       message.success("注册成功");
       // 跳转到首页

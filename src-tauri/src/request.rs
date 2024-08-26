@@ -1,21 +1,16 @@
+use crate::store;
 use core::option::Option;
-use std::env::var;
+use log::{debug, error, info};
 use reqwest::Client;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use tauri::Manager;
-use tauri_plugin_store::{StoreCollection, with_store};
+use std::env::var;
 use thiserror::Error;
-use crate::store::get_app_handle;
 
 #[derive(Debug, Deserialize)]
 pub struct ApiResponse<T> {
     pub success: bool,
     pub data: T,
-}
-
-fn get_user_id() -> Option<String> {
-    return Some(String::from("1"));
 }
 
 #[derive(Debug, Error)]
@@ -25,44 +20,50 @@ pub enum ApiError {
     #[error(transparent)]
     ReqwestError(#[from] reqwest::Error),
     #[error("Store access failed")]
-    StoreAccessFailed(),
+    StoreAccessFailed,
+    #[error("Token is missing")]
+    MissingToken,
+    #[error("Failed to deserialize response")]
+    DeserializationFailed,
 }
 
 impl From<tauri_plugin_store::Error> for ApiError {
     fn from(_err: tauri_plugin_store::Error) -> Self {
-        ApiError::StoreAccessFailed()
+        ApiError::StoreAccessFailed
     }
 }
 
-
 pub async fn send_request<T, U>(path: &str, req_body: Option<U>) -> Result<T, ApiError>
 where
-    T: DeserializeOwned,
-    U: Serialize,
+    T: DeserializeOwned + std::fmt::Debug,
+    U: Serialize + std::fmt::Debug,
 {
-    let app = get_app_handle(); // 获取全局 AppHandle
-    let base_url = var("BASE_URL").unwrap_or_else(|_| "https://seajob.snowycat.cn".to_string());
-    let url = format!("{}/{}", base_url.trim_end_matches('/'), path.trim_start_matches('/'));
+    info!("send_request: {}", path);
+    let base_url = var("BASE_URL").unwrap_or_else(|_| {
+        let default_url = "https://seajob.snowycat.cn".to_string();
+        info!(
+            "Environment variable BASE_URL not found. Using default: {}",
+            default_url
+        );
+        default_url
+    });
 
-    let store_path = "settings.json"; // 存储文件的路径
-
-    // 使用 with_store 获取 token
-    let token = with_store(
-        app.clone(),
-        app.state::<StoreCollection<tauri::Wry>>(),
-        &store_path,
-        |store| {
-            store
-                .get("appSettings.token")
-                .and_then(|v| v.as_str().map(|s| s.to_string()))
-                .ok_or(tauri_plugin_store::Error::NotFound("asd".parse().unwrap())) // 如果没有找到token，返回错误
-        },
-    )
-        .map_err(ApiError::from)?; // 映射到 ApiError
+    let url = format!(
+        "{}/{}",
+        base_url.trim_end_matches('/'),
+        path.trim_start_matches('/')
+    );
+    debug!("Full request URL: {}", url);
 
     let client = Client::builder()
         .no_proxy() // 禁用代理
         .build()?;
+
+    let token = match store::get("token") {
+        Some(serde_json::Value::String(t)) if !t.is_empty() => t,
+        _ => return Err(ApiError::MissingToken),
+    };
+    debug!("Using token: {}", token);
 
     let mut request = client
         .post(url)
@@ -71,17 +72,40 @@ where
 
     // 如果有请求体，则添加到请求中
     if let Some(body) = req_body {
+        debug!("Attaching request body: {:?}", body);
         request = request.json(&body);
     }
 
-    let response = request.send().await?;
+    let response = match request.send().await {
+        Ok(resp) => {
+            debug!("Received response: {:?}", resp);
+            resp
+        }
+        Err(err) => {
+            error!("Failed to send request: {:?}", err);
+            return Err(ApiError::ReqwestError(err));
+        }
+    };
+
     let status = response.status();
-    let api_response: ApiResponse<T> = response.json().await?;
+    info!("Response status: {}", status);
+
+    let api_response: ApiResponse<T> = match response.json().await {
+        Ok(json) => {
+            debug!("Deserialized response: {:?}", json);
+            json
+        }
+        Err(err) => {
+            error!("Failed to deserialize response: {:?}", err);
+            return Err(ApiError::DeserializationFailed);
+        }
+    };
 
     if api_response.success {
+        info!("Request succeeded");
         Ok(api_response.data)
     } else {
+        info!("Request failed with status: {:?}", status);
         Err(ApiError::RequestFailed(status))
     }
 }
-

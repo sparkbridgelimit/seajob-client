@@ -1,17 +1,17 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::env;
 
+use crate::command::{run_job_define, get_token, set_token, clear_token};
 use env_logger;
-use tauri::{generate_handler, Manager};
-use crate::command::{run_job_define};
-use crate::store::{setup};
+use store::init_store;
+use tauri::generate_handler;
+use tauri_plugin_store::StoreBuilder;
 
 mod command;
 mod login;
+mod request;
 mod service;
 mod task;
-mod request;
 mod store;
 
 fn main() {
@@ -21,8 +21,16 @@ fn main() {
 
     tauri::Builder::default()
         .plugin(tauri_plugin_store::Builder::default().build())
-        .setup(setup)
-        .invoke_handler(generate_handler![run_job_define])
+        // .setup(setup)
+        .setup(|app| {
+            let mut store = StoreBuilder::new(app.handle(), "settings.json".parse()?).build();
+            let _ = store.load();
+
+            init_store(store);
+
+            Ok(())
+        })
+        .invoke_handler(generate_handler![run_job_define, get_token, set_token, clear_token])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

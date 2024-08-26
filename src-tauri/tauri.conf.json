@@ -6,7 +6,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "海投助手",
+    "productName": "seajob-client",
     "version": "0.0.1"
   },
   "tauri": {

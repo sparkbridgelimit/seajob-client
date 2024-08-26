@@ -11,6 +11,7 @@ import {
 import AddJobDefineModal from "./add-job-model";
 import router from "@/router";
 import { signOut } from "@/api/auth";
+import { clear_token } from "@/helper";
 
 function Plan() {
   const [data, setData] = useState([]);
@@ -170,7 +171,7 @@ function Plan() {
   const signoutHandler = async () => {
     const res = await signOut();
     console.log(res);
-    localStorage.removeItem("token");
+    clear_token();
     router.navigate("/signin");
   };
 
@@ -196,6 +197,14 @@ function Plan() {
     message.success("添加成功");
   };
 
+  const set_token = async () => {
+    console.log('set_token');
+    invoke("set_token", { token: "new token"});
+  };
+  const get_token = async () => {
+    console.log('get_token: ', await invoke("get_token", {}));
+  }
+
   return (
     <div className="container">
       <div
@@ -205,12 +214,20 @@ function Plan() {
           marginBottom: "16px",
         }}
       >
-        <Button type="default" onClick={() => addJobDefineHandler()}>
-          添加
-        </Button>
-        <Button type="default" onClick={() => signoutHandler()}>
-          登出
-        </Button>
+        <Space>
+          <Button type="default" onClick={async () => set_token()}>
+            设置token
+          </Button>
+          <Button type="default" onClick={async () => get_token()}>
+            打印token
+          </Button>
+          <Button type="default" onClick={() => addJobDefineHandler()}>
+            添加
+          </Button>
+          <Button type="default" onClick={() => signoutHandler()}>
+            登出
+          </Button>
+        </Space>
       </div>
       <Table dataSource={data} rowKey="id" columns={columns} />
       <Modal
