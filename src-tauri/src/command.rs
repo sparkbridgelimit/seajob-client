@@ -1,7 +1,7 @@
 use crate::login;
 use crate::login::check_auth;
 use crate::service::job_define::{
-    create_task, save_cookie, JobDefineRunRequest, JobDefineSaveCookieRequest,
+    create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest, JobDefineSaveCookieRequest
 };
 use crate::store;
 use crate::task;
@@ -71,6 +71,23 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
 pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
     info!("运行任务的 ID: {}", id);
     // 根据defineid查询job_param是否有wt2cookie
+
+    let _cookie_res = get_last_cookie(JobDefineCookieReq { job_define_id: id })
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // 如果有cookie校验是否有效
+    // if let Some(c) = cookie_res {
+    //     if check_auth(&c.wt2_cookie)
+    //         .await
+    //         .map_err(|e| e.to_string())?
+    //     {
+    //         return task::run_job(app, c.clone())
+    //             .await
+    //             .map_err(|e| e.to_string());
+    //     }
+    // }
+
     let create_task_req = JobDefineRunRequest {
         job_define_id: id,
         target_num: 1,

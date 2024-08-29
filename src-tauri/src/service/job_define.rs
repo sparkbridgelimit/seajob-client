@@ -57,7 +57,7 @@ pub async fn create_task(req: JobDefineRunRequest) -> Result<JobDefineRunRes, Ap
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct JobParamDetailReq {
+pub struct JobDefineCookieReq {
     // job_define
     pub job_define_id: i64,
 }
@@ -69,7 +69,7 @@ pub struct JobParamDetailRes {
 }
 
 /// 查询jobdefine详情
-pub async fn get_job_param(req: JobParamDetailReq) -> Result<JobParamDetailRes, ApiError> {
+pub async fn get_last_cookie(req: JobDefineCookieReq) -> Result<JobParamDetailRes, ApiError> {
     info!("get_job_define_detail");
-    send_request("/api/s/job_param/detail", Some(req)).await
+    send_request("/api/s/job_define/get_cookie", Some(req)).await
 }

@@ -1,0 +1,31 @@
+@startuml
+[*] --> CheckCookieExistence
+
+state CheckCookieExistence {
+    [*] --> CheckCookieExistence
+    CheckCookieExistence --> ValidateCookie: 有cookie
+    CheckCookieExistence --> GenerateCookie: 没有cookie
+}
+
+state ValidateCookie {
+    ValidateCookie --> CreateTaskPlan: Cookie有效
+    ValidateCookie --> GenerateCookie: Cookie无效
+}
+
+state GenerateCookie {
+    GenerateCookie --> SaveCookie: 生成新的cookie
+}
+
+state SaveCookie {
+    SaveCookie --> CreateTaskPlan: 保存cookie
+}
+
+state CreateTaskPlan {
+    CreateTaskPlan --> RunTaskInstance: 任务计划创建成功
+}
+
+state RunTaskInstance {
+    RunTaskInstance --> [*]: 任务实例运行成功
+}
+
+@enduml

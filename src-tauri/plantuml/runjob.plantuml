@@ -1,0 +1,24 @@
+@startuml
+start
+
+:调用 get_last_cookie;
+if (是否有 cookie?) then (是)
+    :校验 cookie;
+    if (cookie 有效?) then (是)
+        :创建任务计划;
+        :运行任务实例;
+    else (否)
+        :生成最新 cookie;
+        :保存最新 cookie;
+        :创建任务计划;
+        :运行任务实例;
+    endif
+else (否)
+    :生成最新 cookie;
+    :保存最新 cookie;
+    :创建任务计划;
+    :运行任务实例;
+endif
+
+stop
+@enduml

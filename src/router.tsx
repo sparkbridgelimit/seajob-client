@@ -1,8 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Plan from "@/pages/plan";
 import PlanDetail from "@/pages/plan-detail";
-import SignIn from "@/pages/signin";
-import SignUp from "@/pages/signup";
+import SignUp from "./pages/signup";
+import SignIn from "./pages/signin";
 
 export const routes = [
   {
