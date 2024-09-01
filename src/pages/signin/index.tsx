@@ -3,7 +3,7 @@ import "./index.css";
 import { signIn } from "@/api/auth";
 import { set_token } from "@/helper";
 import router from "@/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { Link } from "react-router-dom";
 
@@ -38,9 +38,9 @@ export default function SignIn() {
         <div className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-2">
             <img
-              src="https://placehold.co/24x24"
+              src="./public/seajob.jpg"
               alt="海投助手"
-              className="w-6 h-6"
+              className="w-10 h-10"
             />
             <span className="text-xl font-bold text-gray-900">海投助手</span>
           </div>

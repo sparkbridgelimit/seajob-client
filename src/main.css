@@ -6,7 +6,7 @@ html, body {
   width: 100%;
   height: 100%;
   font-family: arial,verdana,helvetica,PingFang SC,HanHei SC,STHeitiSC-Light,Microsoft Yahei,sans-serif;
-  background: #00c1c1 url(https://img.bosszhipin.com/static/file/2022/zlqc2m9fao1667185843533.png) bottom/100% auto no-repeat;
+  background: url(https://img.bosszhipin.com/static/file/2022/zlqc2m9fao1667185843533.png) bottom / 100% auto no-repeat;
 }
 
 .container {

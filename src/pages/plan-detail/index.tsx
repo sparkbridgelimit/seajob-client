@@ -14,6 +14,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSnapshot } from "valtio";
 import state, { loadJobDefineDetail, saveJobDefineDetail } from "./state";
+import "./index.css";
+import cityList from "@/data/city";
 
 const { Option } = Select;
 
@@ -66,7 +68,7 @@ export default function PlanDetail() {
   };
 
   return (
-    <div>
+    <div className="plan-detail">
       <Form
         form={form}
         onFinish={onFinish}
@@ -92,10 +94,16 @@ export default function PlanDetail() {
         </Form.Item>
         <Form.Item
           name="city_code"
-          label="城市代码"
+          label="城市"
           rules={[{ required: true, message: "请输入城市代码" }]}
         >
-          <Input />
+          <Select
+            showSearch
+            optionFilterProp="label"
+            style={{ width: "100%" }}
+            placeholder="请选择您的城市"
+            options={cityList}
+          />
         </Form.Item>
         <Form.Item
           name="salary_range"

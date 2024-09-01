@@ -1,16 +1,14 @@
-use crate::login;
-use crate::login::check_auth;
-use crate::service::job_define::{
-    create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest, JobDefineSaveCookieRequest
+use crate::login::{self, check_auth};
+use crate::service::job_define::{create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest, JobDefineSaveCookieRequest
 };
-use crate::store;
-use crate::task;
+use crate::{store, task};
 
 use log::info;
 use serde_json::Value;
 use tauri::{AppHandle, Manager};
 
 pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
+    info!("生成cookie");
     let randkey = login::get_randkey().await.map_err(|e| e.to_string())?;
     app.emit_all("login-first-randkey", randkey.clone())
         .unwrap();
@@ -62,6 +60,16 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
     }
 }
 
+// 生成并保存新的 cookie
+async fn gen_and_save_cookie(id: i64, app: AppHandle) -> Result<String, String> {
+    let new_cookie = gen_cookie(app).await?;
+    save_cookie(JobDefineSaveCookieRequest {
+        job_define_id: id,
+        cookie: new_cookie.clone(),
+    }).await.map_err(|e| e.to_string())?;
+    Ok(new_cookie)
+}
+
 /// 先查询上一个cookie是否有效, 有效则创建任务
 /// 无效则生成新的cookie
 /// 保存cookie
@@ -70,70 +78,37 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
 #[tauri::command]
 pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
     info!("运行任务的 ID: {}", id);
-    // 根据defineid查询job_param是否有wt2cookie
+    // 获取或生成 cookie
+    let cookie = match get_last_cookie(JobDefineCookieReq { job_define_id: id }).await {
+        Ok(res) => {
+            info!("缓存的cookie: {}", res.wt2_cookie);
+            // 检查 cookie 是否有效
+            if check_auth(&res.wt2_cookie).await.unwrap_or(false) {
+                info!("cookie有效");
+                res.wt2_cookie
+            } else {
+                // 如果无效，生成新的 cookie
+                gen_and_save_cookie(id, app.clone()).await?
+            }
+        }
+        Err(_) => {
+            // 没有 cookie，生成新的 cookie
+            gen_and_save_cookie(id, app.clone()).await?
+        }
+    };
 
-    let _cookie_res = get_last_cookie(JobDefineCookieReq { job_define_id: id })
-        .await
-        .map_err(|e| e.to_string())?;
-
-    // 如果有cookie校验是否有效
-    // if let Some(c) = cookie_res {
-    //     if check_auth(&c.wt2_cookie)
-    //         .await
-    //         .map_err(|e| e.to_string())?
-    //     {
-    //         return task::run_job(app, c.clone())
-    //             .await
-    //             .map_err(|e| e.to_string());
-    //     }
-    // }
-
-    let create_task_req = JobDefineRunRequest {
+    let run_req = JobDefineRunRequest {
         job_define_id: id,
         target_num: 1,
     };
-
     // 创建任务
-    let task_result = create_task(create_task_req)
+    let create_task_result = create_task(run_req)
         .await
         .map_err(|e| e.to_string())?;
-    info!("Task created successfully: {:?}", task_result);
+    
+    info!("任务创建成功: {:?}", create_task_result);
 
-    // 检查 wt2_cookie，如果存在并且有效，直接运行任务
-    if !task_result.wt2_cookie.is_empty()
-        && check_auth(&task_result.wt2_cookie)
-            .await
-            .map_err(|e| e.to_string())?
-    {
-        return task::run_job(app, task_result.clone())
-            .await
-            .map_err(|e| e.to_string());
-    }
-
-    // 没有cookie则生成
-    let cookie_res = gen_cookie(app.clone()).await;
-
-    match cookie_res {
-        Ok(ref cookie) => {
-            info!("cookie {:?}", cookie);
-            app.emit_all("scan-success", ())
-                .map_err(|e| e.to_string())?;
-        }
-        Err(_) => {
-            app.emit_all("scan-fail", ()).map_err(|e| e.to_string())?; // 转换错误类型
-        }
-    }
-    // 保存cookie
-    let save_cookie_req = JobDefineSaveCookieRequest {
-        job_define_id: id,
-        cookie: cookie_res.clone().unwrap_or_default(),
-    };
-
-    save_cookie(save_cookie_req)
-        .await
-        .map_err(|e| e.to_string())?;
-
-    task::run_job(app, task_result)
+    task::run_task(app, create_task_result)
         .await
         .map_err(|e| e.to_string())?;
 

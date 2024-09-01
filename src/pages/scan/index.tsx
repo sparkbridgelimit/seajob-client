@@ -6,24 +6,14 @@ import "./index.css";
 export interface IProps {
   open: boolean;
   qrCode?: string;
+  onClose?: () => void;
 }
 
-export default function Scan({ open = true, qrCode = "" }: IProps) {
-  const [isModalOpen, setIsModalOpen] = useState(open);
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
+export default function Scan({ open = true, qrCode = "", onClose = () => {}}: IProps) {
   return (
     <Modal
-      open={isModalOpen}
-      onOk={handleOk}
-      onCancel={handleCancel}
+      open={open}
+      onCancel={() => onClose()}
       footer={null}
       className="scan-modal"
       width={468}

@@ -5,8 +5,6 @@ import "./main.css";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <NextUIProvider>
-    <main className="light">
       <App />
-    </main>
   </NextUIProvider>
 );

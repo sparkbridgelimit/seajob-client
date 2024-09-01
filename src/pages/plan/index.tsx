@@ -12,6 +12,7 @@ import router from "@/router";
 import { signOut } from "@/api/auth";
 import { clear_token } from "@/helper";
 import Scan from "../scan";
+import "./index.css";
 
 function Plan() {
   const [data, setData] = useState([]);
@@ -79,18 +80,6 @@ function Plan() {
       },
       {
         title: "打招呼数",
-        dataIndex: "",
-        key: "",
-        render: () => 0,
-      },
-      {
-        title: "回复数",
-        dataIndex: "",
-        key: "",
-        render: () => 0,
-      },
-      {
-        title: "交换简历",
         dataIndex: "",
         key: "",
         render: () => 0,
@@ -189,16 +178,8 @@ function Plan() {
     message.success("添加成功");
   };
 
-  const set_token = async () => {
-    console.log('set_token');
-    invoke("set_token", { token: "new token"});
-  };
-  const get_token = async () => {
-    console.log('get_token: ', await invoke("get_token", {}));
-  }
-
   return (
-    <div className="container">
+    <div className="container plan">
       <div
         style={{
           display: "flex",
@@ -207,12 +188,6 @@ function Plan() {
         }}
       >
         <Space>
-          <Button type="default" onClick={async () => set_token()}>
-            设置token
-          </Button>
-          <Button type="default" onClick={async () => get_token()}>
-            打印token
-          </Button>
           <Button type="default" onClick={() => addJobDefineHandler()}>
             添加
           </Button>
@@ -222,7 +197,7 @@ function Plan() {
         </Space>
       </div>
       <Table dataSource={data} rowKey="id" columns={columns} />
-      <Scan open={isModalOpen} qrCode={qrCode}></Scan>
+      <Scan open={isModalOpen} qrCode={qrCode} onClose={() => setIsModalOpen(false)}></Scan>
       <AddJobDefineModal
         onClose={() => setIsAddModalOpen(false)}
         onConfirm={(values) => onAddJobDefineConfirm(values)}

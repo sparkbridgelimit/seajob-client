@@ -19,7 +19,7 @@ pub struct JobDefineSaveCookieRes {
 }
 
 pub async fn save_cookie(req: JobDefineSaveCookieRequest) -> Result<JobDefineSaveCookieRes, ApiError> {
-    info!("save_cookie");
+    info!("保存cookie");
     send_request("/api/s/job_define/cookie", Some(req)).await
 }
 

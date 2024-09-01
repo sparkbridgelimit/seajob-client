@@ -6,7 +6,7 @@ use crate::service::job_define::{JobDefineRunRes};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 
-pub async fn run_job(app: AppHandle, param: JobDefineRunRes) -> Result<(), String> {
+pub async fn run_task(app: AppHandle, param: JobDefineRunRes) -> Result<(), String> {
     let executor_path = app
         .path_resolver()
         .resolve_resource("resources/seajob-executor")
