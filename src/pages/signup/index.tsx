@@ -5,6 +5,7 @@ import { set_token } from "@/helper";
 import router from "@/router";
 import { useState } from "react";
 import { Button } from "@nextui-org/button";
+import { Link } from "react-router-dom";
 
 export default function SignUp() {
   const [username, setUserName] = useState("");
@@ -37,7 +38,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="bg-gray-50 background-gradient">
+    <div className="background">
       <div className="min-h-screen flex flex-col justify-between">
         <div className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-2">
@@ -49,26 +50,20 @@ export default function SignUp() {
             <span className="text-xl font-bold text-gray-900">海投助手</span>
           </div>
           <div>
-            <Space>
-              <a
-                href="#"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900"
-              >
-                已有账号?
-              </a>
-              <Button
-                color="primary"
-                onClick={() => router.navigate("/signup")}
-              >
-                登陆
-              </Button>
-            </Space>
+            <Link to="/signin">
+              <Space>
+                <span className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                  已有账号?
+                </span>
+                <Button color="primary">登陆</Button>
+              </Space>
+            </Link>
           </div>
         </div>
         <div className="flex-grow flex items-center justify-center">
           <div className="login bg-white p-8 rounded-xl shadow-lg w-full max-w-md space-y-4">
             <h1 className="text-2xl font-bold text-gray-900 text-center">
-              欢迎注册
+              欢迎注册《海投助手》
             </h1>
 
             <div className="flex items-center justify-between">
@@ -144,15 +139,6 @@ export default function SignUp() {
               注册
             </Button>
           </div>
-        </div>
-
-        <div className="text-center py-6">
-          <p className="text-sm text-gray-500">
-            已有账号?
-            <a href="#" className="text-purple-600 font-medium hover:underline">
-              登陆
-            </a>
-          </p>
         </div>
       </div>
     </div>

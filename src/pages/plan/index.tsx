@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Table, Space, Popconfirm, message, Modal } from "antd";
+import { Button, Table, Space, Popconfirm, message } from "antd";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
-import QRCode from "react-qr-code";
 import {
   deleteJobDefine,
   createJobDefine,
@@ -12,20 +11,13 @@ import AddJobDefineModal from "./add-job-model";
 import router from "@/router";
 import { signOut } from "@/api/auth";
 import { clear_token } from "@/helper";
+import Scan from "../scan";
 
 function Plan() {
   const [data, setData] = useState([]);
   const [qrCode, setQrCode] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
 
   useEffect(() => {
     getJobDefineList()
@@ -230,19 +222,7 @@ function Plan() {
         </Space>
       </div>
       <Table dataSource={data} rowKey="id" columns={columns} />
-      <Modal
-        title="请使用Boss直聘App扫描二维码"
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-      >
-        <QRCode
-          size={256}
-          style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-          value={qrCode}
-          viewBox={`0 0 256 256`}
-        />
-      </Modal>
+      <Scan open={isModalOpen} qrCode={qrCode}></Scan>
       <AddJobDefineModal
         onClose={() => setIsAddModalOpen(false)}
         onConfirm={(values) => onAddJobDefineConfirm(values)}

@@ -5,6 +5,7 @@ import { set_token } from "@/helper";
 import router from "@/router";
 import { useState } from "react";
 import { Button } from "@nextui-org/button";
+import { Link } from "react-router-dom";
 
 export default function SignIn() {
   const [username, setUserName] = useState("");
@@ -32,7 +33,7 @@ export default function SignIn() {
   };
 
   return (
-    <div className="bg-gray-50 background-gradient">
+    <div className="background">
       <div className="min-h-screen flex flex-col justify-between">
         <div className="flex justify-between items-center p-6">
           <div className="flex items-center space-x-2">
@@ -44,32 +45,21 @@ export default function SignIn() {
             <span className="text-xl font-bold text-gray-900">海投助手</span>
           </div>
           <div>
-            <Space>
-              <a
-                href="#"
-                className="text-sm font-medium text-gray-600 hover:text-gray-900"
-              >
-                没有账号?
-              </a>
-              <Button color="primary" onClick={() => router.navigate('/signup')}>注册</Button>
-            </Space>
+            <Link to="/signup">
+              <Space>
+                <span className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                  没有账号?
+                </span>
+                <Button color="primary">注册</Button>
+              </Space>
+            </Link>
           </div>
         </div>
         <div className="flex-grow flex items-center justify-center">
           <div className="login bg-white p-8 rounded-xl shadow-lg w-full max-w-md space-y-4">
             <h1 className="text-2xl font-bold text-gray-900 text-center">
-              欢迎回来
+              欢迎登陆《海投助手》
             </h1>
-
-            {/* <button className="w-full flex items-center justify-center border border-gray-300 rounded-lg p-3 text-gray-700 font-medium hover:bg-gray-50">
-              <img
-                src="https://placehold.co/20x20"
-                alt="Google logo"
-                className="w-5 h-5 mr-2"
-              />
-              Continue with Google
-            </button> */}
-
             <div className="flex items-center justify-between">
               <span className="block w-full h-px bg-gray-300"></span>
               <span className="mx-2 text-sm font-medium text-gray-500">OR</span>
@@ -93,7 +83,7 @@ export default function SignIn() {
                     onChange={(e) => setUserName(e.target.value)}
                     type="text"
                     placeholder="请输入您的账号"
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-gray-900"
+                    className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-gray-900"
                   />
                 </div>
               </div>
@@ -114,14 +104,8 @@ export default function SignIn() {
                     type="password"
                     id="password"
                     placeholder="请输入您的密码"
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-gray-900"
+                    className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-gray-900"
                   />
-                  {/* <a
-                    href="#"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-sm font-medium text-purple-600 hover:underline"
-                  >
-                    忘记密码?
-                  </a> */}
                 </div>
               </div>
             </div>
@@ -130,31 +114,7 @@ export default function SignIn() {
             </Button>
           </div>
         </div>
-
-        <div className="text-center py-6">
-          <p className="text-sm text-gray-500">
-            没有账号?
-            <a href="#" className="text-purple-600 font-medium hover:underline">
-              注册
-            </a>
-          </p>
-        </div>
-
-        <div className="p-6 text-center text-xs text-white">
-          <p>
-            This site is protected by reCAPTCHA and the Google
-            <a href="#" className="underline">
-              Privacy Policy
-            </a>
-            and
-            <a href="#" className="underline">
-              Terms of Service
-            </a>
-            apply.
-          </p>
-        </div>
       </div>
-      {/* <div className="background-bg"></div> */}
     </div>
   );
 }

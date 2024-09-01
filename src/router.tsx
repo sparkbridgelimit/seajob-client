@@ -3,11 +3,16 @@ import Plan from "@/pages/plan";
 import PlanDetail from "@/pages/plan-detail";
 import SignUp from "./pages/signup";
 import SignIn from "./pages/signin";
+import Scan from "./pages/scan";
 
 export const routes = [
   {
     path: "/",
     element: <Plan />,
+  },
+  {
+    path: "/scan",
+    element: <Scan />,
   },
   {
     path: "/signin",
