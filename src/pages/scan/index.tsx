@@ -1,5 +1,4 @@
 import { Modal } from "antd";
-import { useState } from "react";
 import QRCode from "react-qr-code";
 import "./index.css";
 

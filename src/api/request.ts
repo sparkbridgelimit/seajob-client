@@ -45,7 +45,7 @@ export async function request({
   return Promise.reject(new Error(json.message));
 }
 
-const APP_HOST_MAP = {
+const APP_HOST_MAP: { [key: string]: { [key: string]: string } } = {
   auth: {
     DEV: 'http://localhost:8080',
     PROD: 'https://auth.snowycat.cn',

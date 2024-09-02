@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Button, Table, Space, Popconfirm, message } from "antd";
+import { useCallback, useEffect, useState } from "react";
+import { Button, Popconfirm, Space } from "antd";
 import { invoke } from "@tauri-apps/api/tauri";
 import { listen } from "@tauri-apps/api/event";
 import {
@@ -8,11 +8,31 @@ import {
   getJobDefineList,
 } from "@/api/job_define";
 import AddJobDefineModal from "./add-job-model";
-import router from "@/router";
-import { signOut } from "@/api/auth";
-import { clear_token } from "@/helper";
 import Scan from "../scan";
 import "./index.css";
+import Header from "@/components/header";
+import {
+  Chip,
+  Button as NextButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@nextui-org/react";
+import router from "@/router";
+import { DeleteIcon } from "@/icons/delete";
+
+interface JobDefine {
+  id: number;
+  job_define_name: string;
+  job_define_desc: string;
+  status: string;
+  create_time: string;
+}
+
+type JobDefineList = JobDefine[];
 
 function Plan() {
   const [data, setData] = useState([]);
@@ -63,68 +83,36 @@ function Plan() {
       l4.then((unlisten) => unlisten());
     };
   }, []);
-
-  const columns = useMemo(() => {
-    return [
-      {
-        title: "名称",
-        dataIndex: "job_define_name",
-        key: "job_define_name",
-        width: 200,
-      },
-      {
-        title: "描述",
-        dataIndex: "job_define_desc",
-        key: "job_define_desc",
-        width: 200,
-      },
-      {
-        title: "打招呼数",
-        dataIndex: "",
-        key: "",
-        render: () => 0,
-      },
-      {
-        title: "状态",
-        dataIndex: "",
-        key: "",
-        render: () => "未开始",
-      },
-      {
-        title: "创建时间",
-        dataIndex: "create_time",
-        key: "create_time",
-        width: 200,
-      },
-      {
-        title: "操作",
-        key: "action",
-        width: 200,
-        render: (_: any, record: { id: any }) => {
-          return (
-            <>
-              <Space>
-                <Button onClick={() => runJob(record.id)}>运行</Button>
-                <Button onClick={() => router.navigate(`/plan/${record.id}`)}>
-                  详情
-                </Button>
-                <Popconfirm
-                  title="删除投递计划"
-                  description="删除后不可恢复，确定删除吗？"
-                  onConfirm={() => deleteJobDefineHandler(record.id)}
-                  onCancel={() => {}}
-                  okText="确认"
-                  cancelText="取消"
-                >
-                  <Button>删除</Button>
-                </Popconfirm>
-              </Space>
-            </>
-          );
-        },
-      },
-    ];
-  }, []);
+  const columns = [
+    {
+      key: "job_define_name",
+      label: "计划名称",
+    },
+    {
+      key: "job_define_desc",
+      label: "计划描述",
+    },
+    {
+      key: "status",
+      label: "状态",
+    },
+    {
+      key: "total_hi",
+      label: "总沟通数",
+    },
+    {
+      key: "last_run_time",
+      label: "最近运行时间",
+    },
+    {
+      key: "create_time",
+      label: "创建时间",
+    },
+    {
+      key: "action",
+      label: "操作",
+    },
+  ];
 
   const runJob = async (id: number) => {
     // 处理查看操作，例如跳转到详情页或显示模态框
@@ -142,18 +130,10 @@ function Plan() {
       .catch((err) => {
         console.error(err);
       });
-    message.success("删除成功");
   };
 
   const addJobDefineHandler = async () => {
     setIsAddModalOpen(true);
-  };
-
-  const signoutHandler = async () => {
-    const res = await signOut();
-    console.log(res);
-    clear_token();
-    router.navigate("/signin");
   };
 
   const onAddJobDefineConfirm = async (values: any) => {
@@ -175,29 +155,101 @@ function Plan() {
         console.error(err);
       });
     setIsAddModalOpen(false);
-    message.success("添加成功");
   };
 
+  // 渲染单元格内容
+  const renderCell = useCallback((item: any, columnKey: any) => {
+    switch (columnKey) {
+      case "status":
+        return (
+          <Chip className="capitalize" color="warning" size="sm" variant="flat">
+            未开始
+          </Chip>
+        );
+      case "action":
+        return (
+          <div>
+            <Space>
+              <NextButton
+                color="primary"
+                size="sm"
+                onClick={() => runJob(item.id)}
+              >
+                运行
+              </NextButton>
+              <NextButton
+                color="primary"
+                size="sm"
+                variant="ghost"
+                onClick={() => router.navigate(`/plan/${item.id}`)}
+              >
+                详情
+              </NextButton>
+
+              <Popconfirm
+                title="删除投递计划"
+                description="删除后不可恢复，确定删除吗？"
+                onConfirm={() => deleteJobDefineHandler(item.id)}
+                onCancel={() => {}}
+                okText="确认"
+                cancelText="取消"
+              >
+                <NextButton
+                  color="danger"
+                  size="sm"
+                  variant="ghost"
+                >
+                  删除
+                </NextButton>
+              </Popconfirm>
+            </Space>
+          </div>
+        );
+      default:
+        return item[columnKey];
+    }
+  }, []);
+
   return (
-    <div className="container plan">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          marginBottom: "16px",
-        }}
-      >
-        <Space>
-          <Button type="default" onClick={() => addJobDefineHandler()}>
-            添加
-          </Button>
-          <Button type="default" onClick={() => signoutHandler()}>
-            登出
-          </Button>
-        </Space>
+    <div className="plan">
+      <Header />
+      <div className="container">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: "16px",
+          }}
+        >
+          <Space>
+            <NextButton color="primary" onClick={() => addJobDefineHandler()}>
+              添加投递计划
+            </NextButton>
+          </Space>
+        </div>
+        <Table color="primary" selectionMode="single">
+          <TableHeader columns={columns}>
+            {(column) => (
+              <TableColumn key={column.key}>{column.label}</TableColumn>
+            )}
+          </TableHeader>
+          <TableBody items={data} emptyContent={"暂无投递计划, 请添加"}>
+            {(item) => (
+              <TableRow key={item.key}>
+                {(columnKey) => (
+                  <TableCell>{renderCell(item, columnKey)}</TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
-      <Table dataSource={data} rowKey="id" columns={columns} />
-      <Scan open={isModalOpen} qrCode={qrCode} onClose={() => setIsModalOpen(false)}></Scan>
+
+      <Scan
+        open={isModalOpen}
+        qrCode={qrCode}
+        onClose={() => setIsModalOpen(false)}
+      ></Scan>
       <AddJobDefineModal
         onClose={() => setIsAddModalOpen(false)}
         onConfirm={(values) => onAddJobDefineConfirm(values)}

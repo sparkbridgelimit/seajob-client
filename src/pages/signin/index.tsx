@@ -3,9 +3,9 @@ import "./index.css";
 import { signIn } from "@/api/auth";
 import { set_token } from "@/helper";
 import router from "@/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@nextui-org/button";
-import { Link } from "react-router-dom";
+import Header from "@/components/header";
 
 export default function SignIn() {
   const [username, setUserName] = useState("");
@@ -35,26 +35,7 @@ export default function SignIn() {
   return (
     <div className="background">
       <div className="min-h-screen flex flex-col justify-between">
-        <div className="flex justify-between items-center p-6">
-          <div className="flex items-center space-x-2">
-            <img
-              src="./public/seajob.jpg"
-              alt="海投助手"
-              className="w-10 h-10"
-            />
-            <span className="text-xl font-bold text-gray-900">海投助手</span>
-          </div>
-          <div>
-            <Link to="/signup">
-              <Space>
-                <span className="text-sm font-medium text-gray-600 hover:text-gray-900">
-                  没有账号?
-                </span>
-                <Button color="primary">注册</Button>
-              </Space>
-            </Link>
-          </div>
-        </div>
+        <Header></Header>
         <div className="flex-grow flex items-center justify-center">
           <div className="login bg-white p-8 rounded-xl shadow-lg w-full max-w-md space-y-4">
             <h1 className="text-2xl font-bold text-gray-900 text-center">
