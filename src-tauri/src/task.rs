@@ -1,12 +1,12 @@
 use log::info;
-use std::process::{Stdio};
+use std::process::Stdio;
 use std::env;
 use tauri::AppHandle;
-use crate::service::job_define::{JobDefineRunRes};
+use crate::service::job_define::JobDefineRunRes;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 
-pub async fn run_task(app: AppHandle, param: JobDefineRunRes) -> Result<(), String> {
+pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool) -> Result<(), String> {
     let executor_path = app
         .path_resolver()
         .resolve_resource("resources/seajob-executor")
@@ -44,6 +44,11 @@ pub async fn run_task(app: AppHandle, param: JobDefineRunRes) -> Result<(), Stri
     env::set_var("timeout", param.timeout.to_string());
     env::set_var("target_num", param.target_num.to_string());
     env::set_var("wt2_cookie", param.wt2_cookie.to_string());
+    let h = match headless {
+        true => "true",
+        false => "false",
+    };
+    env::set_var("headless", h.to_string());
 
     let mut child = Command::new(executor_path)
         .stdout(Stdio::piped())

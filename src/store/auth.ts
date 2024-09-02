@@ -1,4 +1,3 @@
-import api from '@/api';
 import { proxy } from 'valtio';
 import { signIn, signOut } from "@/api/auth";
 import router from '@/router';

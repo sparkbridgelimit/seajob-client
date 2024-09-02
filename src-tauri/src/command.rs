@@ -1,5 +1,7 @@
 use crate::login::{self, check_auth};
-use crate::service::job_define::{create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest, JobDefineSaveCookieRequest
+use crate::service::job_define::{
+    create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest,
+    JobDefineSaveCookieRequest,
 };
 use crate::{store, task};
 
@@ -66,20 +68,17 @@ async fn gen_and_save_cookie(id: i64, app: AppHandle) -> Result<String, String> 
     save_cookie(JobDefineSaveCookieRequest {
         job_define_id: id,
         cookie: new_cookie.clone(),
-    }).await.map_err(|e| e.to_string())?;
+    })
+    .await
+    .map_err(|e| e.to_string())?;
     Ok(new_cookie)
 }
 
-/// 先查询上一个cookie是否有效, 有效则创建任务
-/// 无效则生成新的cookie
-/// 保存cookie
-/// 创建任务
-/// 运行任务
 #[tauri::command]
-pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
-    info!("运行任务的 ID: {}", id);
+pub async fn run_job_define(id: i64, count: i32, headless: bool, app: AppHandle) -> Result<i64, String> {
+    info!("运行任务的 ID: {}, 目标次数: {}", id, count);
     // 获取或生成 cookie
-    let cookie = match get_last_cookie(JobDefineCookieReq { job_define_id: id }).await {
+    let _cookie = match get_last_cookie(JobDefineCookieReq { job_define_id: id }).await {
         Ok(res) => {
             info!("缓存的cookie: {}", res.wt2_cookie);
             // 检查 cookie 是否有效
@@ -99,20 +98,20 @@ pub async fn run_job_define(id: i64, app: AppHandle) -> Result<(), String> {
 
     let run_req = JobDefineRunRequest {
         job_define_id: id,
-        target_num: 1,
+        target_num: count,
     };
+
     // 创建任务
-    let create_task_result = create_task(run_req)
-        .await
-        .map_err(|e| e.to_string())?;
-    
+    let create_task_result = create_task(run_req).await.map_err(|e| e.to_string())?;
+
     info!("任务创建成功: {:?}", create_task_result);
-
-    task::run_task(app, create_task_result)
+    app.emit_all("job_starting", id).unwrap();
+    task::run_task(app.clone(), create_task_result, headless)
         .await
         .map_err(|e| e.to_string())?;
 
-    Ok(())
+    app.emit_all("job_finish", id).unwrap();
+    Ok(id)
 }
 
 #[tauri::command]
