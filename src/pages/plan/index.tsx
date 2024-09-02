@@ -3,7 +3,6 @@ import { message, Space } from "antd";
 import { listen } from "@tauri-apps/api/event";
 import {
   createJobDefine,
-  getJobDefineList,
 } from "@/api/job_define";
 import AddJobDefineModal from "./add-job-model";
 import Scan from "../scan";

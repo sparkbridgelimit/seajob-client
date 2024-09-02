@@ -1,7 +1,7 @@
 use log::info;
 use std::process::Stdio;
 use std::env;
-use tauri::AppHandle;
+use tauri::{AppHandle, Manager};
 use crate::service::job_define::JobDefineRunRes;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
@@ -62,6 +62,7 @@ pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool) ->
             while let Ok(Some(line)) = stdout_reader.next_line().await {
                 println!("STDOUT: {}", line);
                 info!("STDOUT: {}", line);
+                app.emit_all("run_log", line).unwrap();
             }
         });
     }

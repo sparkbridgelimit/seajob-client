@@ -1,6 +1,7 @@
 import state from "@/store/task";
 import { Button } from "@nextui-org/button";
 import {
+  CircularProgress,
   Input,
   Modal,
   ModalBody,
@@ -14,20 +15,29 @@ import { useState } from "react";
 import { useSnapshot } from "valtio";
 
 export interface RunButtonProps {
-  onConfirm: (count: string) => void;
+  onConfirm: (count: string, headless: boolean) => void;
   jobDefineId: number;
 }
 
-export default function RunButton({ onConfirm = () => {}, jobDefineId }: RunButtonProps) {
+export default function RunButton({
+  onConfirm = () => {},
+  jobDefineId,
+}: RunButtonProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [ count, setCount] = useState<string>("1");
+  const [count, setCount] = useState<string>("1");
   const [isSelected, setIsSelected] = useState<boolean>(true);
   const { running, runningJobId } = useSnapshot(state);
 
   const runButton = () => {
     if (running && runningJobId === jobDefineId) {
       return (
-        <Button color="primary" size="sm" disabled>
+        <Button
+          color="primary"
+          size="sm"
+          disabled
+          isLoading
+          spinner={<CircularProgress size="sm" />}
+        >
           运行中
         </Button>
       );
@@ -68,11 +78,7 @@ export default function RunButton({ onConfirm = () => {}, jobDefineId }: RunButt
                 <span className="text-slate-600">是否观看执行过程</span>
                 <Switch isSelected={isSelected} onValueChange={setIsSelected} />
                 <span className="text-gray-600 text-xs">
-                  {
-                    isSelected
-                      ? "躲墙角偷偷看一下"
-                      : "不看不看, 眼不见心不烦好"
-                  }
+                  {isSelected ? "躲墙角偷偷看一下" : "不看不看, 眼不见心不烦好"}
                 </span>
               </ModalBody>
               <ModalFooter>
@@ -88,7 +94,7 @@ export default function RunButton({ onConfirm = () => {}, jobDefineId }: RunButt
                 <Button
                   color="primary"
                   onPress={() => {
-                    onConfirm(count);
+                    onConfirm(count, !isSelected);
                     onClose();
                   }}
                 >

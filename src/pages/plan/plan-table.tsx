@@ -13,8 +13,12 @@ import { Popconfirm, Space } from "antd";
 import { useCallback, useEffect } from "react";
 import RunButton from "./run-job-button";
 import { invoke } from "@tauri-apps/api";
-import jobDefineState, { deleteJobDefineById, fetchJobDefines } from "@/store/job_define";
+import jobDefineState, {
+  deleteJobDefineById,
+  fetchJobDefines,
+} from "@/store/job_define";
 import { useSnapshot } from "valtio";
+import LogButton from "./log-button";
 
 const columns = [
   {
@@ -59,13 +63,13 @@ export default function PlanTable() {
     await deleteJobDefineById(id);
   };
 
-  const runJob = async (id: number, count: string) => {
+  const runJob = async (id: number, count: string, headless: boolean) => {
     // 处理查看操作，例如跳转到详情页或显示模态框
     console.log("查看记录的ID:", id, count);
     await invoke("run_job_define", {
       id,
       count: Number(count),
-      headless: false,
+      headless,
     });
   };
 
@@ -80,35 +84,34 @@ export default function PlanTable() {
         );
       case "action":
         return (
-          <div>
-            <Space>
-              <RunButton
-                jobDefineId={item.id}
-                onConfirm={(count) => runJob(item.id, count)}
-              />
-              <Button
-                color="primary"
-                size="sm"
-                variant="ghost"
-                onClick={() => router.navigate(`/plan/${item.id}`)}
-              >
-                详情
-              </Button>
+          <Space>
+            <RunButton
+              jobDefineId={item.id}
+              onConfirm={(count, headless) => runJob(item.id, count, headless)}
+            />
+            <Button
+              color="primary"
+              size="sm"
+              variant="ghost"
+              onClick={() => router.navigate(`/plan/${item.id}`)}
+            >
+              详情
+            </Button>
 
-              <Popconfirm
-                title="删除投递计划"
-                description="删除后不可恢复，确定删除吗？"
-                onConfirm={() => deleteJobDefineHandler(item.id)}
-                onCancel={() => {}}
-                okText="确认"
-                cancelText="取消"
-              >
-                <Button color="danger" size="sm" variant="ghost">
-                  删除
-                </Button>
-              </Popconfirm>
-            </Space>
-          </div>
+            <Popconfirm
+              title="删除投递计划"
+              description="删除后不可恢复，确定删除吗？"
+              onConfirm={() => deleteJobDefineHandler(item.id)}
+              onCancel={() => {}}
+              okText="确认"
+              cancelText="取消"
+            >
+              <Button color="danger" size="sm" variant="ghost">
+                删除
+              </Button>
+            </Popconfirm>
+            <LogButton />
+          </Space>
         );
       case "last_run_time":
         return item[columnKey] || "--";
@@ -116,7 +119,7 @@ export default function PlanTable() {
         return item[columnKey];
     }
   }, []);
-  
+
   return (
     <>
       <Table color="primary" selectionMode="single">
@@ -129,7 +132,9 @@ export default function PlanTable() {
           {(item) => (
             <TableRow key={item.id}>
               {(columnKey) => (
-                <TableCell>{renderCell(item, columnKey)}</TableCell>
+                <TableCell className="text-slate-600">
+                  {renderCell(item, columnKey)}
+                </TableCell>
               )}
             </TableRow>
           )}
