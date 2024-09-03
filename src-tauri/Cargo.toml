@@ -35,6 +35,8 @@ directories = "5.0.1"
 ureq = "2.10.1"
 walkdir = "2.5.0"
 zip = "2.2.0"
+
+[target.'cfg(windows)'.dependencies]
 winreg = "0.52.0"
 
 [features]
