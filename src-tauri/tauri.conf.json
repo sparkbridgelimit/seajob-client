@@ -44,7 +44,7 @@
         "icons/seajob.jpg"
       ],
       "resources": [
-        "resources/*"
+        "resources/seajob-executor"
       ]
     }
   }

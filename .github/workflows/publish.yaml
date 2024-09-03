@@ -44,7 +44,7 @@ jobs:
 
       - name: install Rust stable 1.80
         uses: dtolnay/rust-toolchain@1.80
-        
+
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -53,6 +53,12 @@ jobs:
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: pnpm install # change this to npm or pnpm depending on which one you use.
+
+      - name: Import Code-Signing Certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with: 
+          p12-file-base64: ${{ secrets.CERTIFICATES_P12 }}
+          p12-password: ''
 
       - uses: tauri-apps/tauri-action@v0
         env:
