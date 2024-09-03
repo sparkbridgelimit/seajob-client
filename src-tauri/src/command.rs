@@ -1,3 +1,4 @@
+use crate::browser::default_executable;
 use crate::login::{self, check_auth};
 use crate::service::job_define::{
     create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest,
@@ -106,7 +107,7 @@ pub async fn run_job_define(id: i64, count: i32, headless: bool, app: AppHandle)
 
     info!("任务创建成功: {:?}", create_task_result);
     app.emit_all("job_starting", id).unwrap();
-    task::run_task(app.clone(), create_task_result, headless)
+    task::run_task(app.clone(), create_task_result, headless, default_executable().unwrap())
         .await
         .map_err(|e| e.to_string())?;
 
@@ -138,5 +139,14 @@ pub fn get_token() -> Result<String, String> {
 pub fn clear_token() -> Result<(), String> {
     info!("清除token");
     let _ = store::delete("token");
+    Ok(())
+}
+
+
+#[tauri::command]
+pub fn detect_chrome() -> Result<(), String> {
+    info!("检测chrome");
+    let path: std::path::PathBuf = default_executable().map_err(|e| e.to_string())?;
+    info!("Chrome路径: {:?}", path);
     Ok(())
 }

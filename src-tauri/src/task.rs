@@ -1,4 +1,5 @@
 use log::info;
+use std::path::PathBuf;
 use std::process::Stdio;
 use std::env;
 use tauri::{AppHandle, Manager};
@@ -6,7 +7,7 @@ use crate::service::job_define::JobDefineRunRes;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 
-pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool) -> Result<(), String> {
+pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool, chrome_path: PathBuf) -> Result<(), String> {
     let executor_path = app
         .path_resolver()
         .resolve_resource("resources/seajob-executor")
@@ -15,12 +16,12 @@ pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool) ->
     // 打印可执行文件路径以进行调试
     println!("Executable path: {:?}", executor_path);
 
-    let chrome_path = app
-        .path_resolver()
-        .resolve_resource(
-            "resources/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
-        )
-        .expect("failed to resolve resource");
+    // let chrome_path = app
+    //     .path_resolver()
+    //     .resolve_resource(
+    //         "resources/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+    //     )
+    //     .expect("failed to resolve resource");
 
     // 设置环境变量
     env::set_var(

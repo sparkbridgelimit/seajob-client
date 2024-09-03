@@ -1,19 +1,16 @@
 import { useEffect, useState } from "react";
 import { message, Space } from "antd";
 import { listen } from "@tauri-apps/api/event";
-import {
-  createJobDefine,
-} from "@/api/job_define";
+import { createJobDefine } from "@/api/job_define";
 import AddJobDefineModal from "./add-job-model";
 import Scan from "../scan";
 import "./index.css";
 import Header from "@/components/header";
-import {
-  Button as NextButton,
-} from "@nextui-org/react";
+import { Button as NextButton } from "@nextui-org/react";
 import { runTask, stopTask } from "@/store/task";
 import PlanTable from "./plan-table";
 import { fetchJobDefines } from "@/store/job_define";
+import { invoke } from "@tauri-apps/api";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -47,7 +44,7 @@ function Plan() {
 
     // 启动后将禁用所有的投递计划启动按钮, 防止重复启动, 已启动的任务, 启动按钮变成运行中
     const l5 = listen("job_starting", (event) => {
-      console.log('job_starting', Number(event.payload));
+      console.log("job_starting", Number(event.payload));
       runTask(Number(event.payload));
       message.success("任务启动成功");
     });
@@ -106,6 +103,9 @@ function Plan() {
           }}
         >
           <Space>
+            <NextButton color="primary" onClick={async () => await invoke("detect_chrome")}>
+              检测chrome执行路径
+            </NextButton>
             <NextButton color="primary" onClick={() => addJobDefineHandler()}>
               添加投递计划
             </NextButton>

@@ -7,4 +7,5 @@ pub mod service;
 
 pub mod request;
 pub mod store;
-
+pub mod browser;
+pub mod fetcher;

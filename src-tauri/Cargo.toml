@@ -29,6 +29,11 @@ tokio-util = { version = "0.7.11", features = ["compat"] }
 tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 thiserror = "1.0.63"
 toml = "0.8.19"
+which = "6.0.3"
+anyhow = "1.0.86"
+directories = "5.0.1"
+ureq = "2.10.1"
+walkdir = "2.5.0"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
