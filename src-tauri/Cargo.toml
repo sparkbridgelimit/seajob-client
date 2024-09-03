@@ -34,6 +34,8 @@ anyhow = "1.0.86"
 directories = "5.0.1"
 ureq = "2.10.1"
 walkdir = "2.5.0"
+zip = "2.2.0"
+winreg = "0.52.0"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
