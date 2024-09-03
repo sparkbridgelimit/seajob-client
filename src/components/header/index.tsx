@@ -14,6 +14,7 @@ import { useSnapshot } from "valtio";
 
 export default function Header() {
   const { isLogin } = useSnapshot(auth);
+
   let location = useLocation();
   const NotAuth = useMemo(() => {
     return (
