@@ -1,4 +1,4 @@
-import { message, Space } from "antd";
+import { message } from "antd";
 import "./index.css";
 import { signIn } from "@/api/auth";
 import { set_token } from "@/helper";

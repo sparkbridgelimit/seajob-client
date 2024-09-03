@@ -1,11 +1,10 @@
-import { message, Space } from "antd";
+import { message } from "antd";
 import "./index.css";
 import { signUp } from "@/api/auth";
 import { set_token } from "@/helper";
 import router from "@/router";
 import { useState } from "react";
 import { Button } from "@nextui-org/button";
-import { Link } from "react-router-dom";
 import Header from "@/components/header";
 
 export default function SignUp() {

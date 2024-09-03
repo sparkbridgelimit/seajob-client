@@ -1,5 +1,4 @@
 import { deleteJobDefine, getJobDefineList } from '@/api/job_define';
-import { request } from '@/api/request';
 import { proxy } from 'valtio';
 
 interface IJobDefine {
@@ -40,7 +39,7 @@ export const deleteJobDefineById = async (id: number) => {
   console.log("删除记录的ID:",);
   try {
     await deleteJobDefine(id);
-    jobDefineState.list = jobDefineState.list.filter((item) => item.id !== job_define_id);
+    jobDefineState.list = jobDefineState.list.filter((item) => item.id !== id);
   } catch (error) {
     console.error(error);
   }
