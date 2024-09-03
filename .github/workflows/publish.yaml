@@ -44,6 +44,9 @@ jobs:
 
       - name: install Rust stable 1.80
         uses: dtolnay/rust-toolchain@1.80
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
