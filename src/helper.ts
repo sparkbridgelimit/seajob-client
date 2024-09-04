@@ -6,7 +6,13 @@ export const isTauri = () => {
 
 export async function get_token() {
   if (isTauri()) {
-    return await invoke("get_token", {});
+    try {
+      return await invoke("get_token", {});
+    } catch (error) {
+      console.error(error);
+    } finally {
+      return Promise.resolve();
+    }
   }
   return Promise.resolve(window.localStorage.getItem('token'));
 }

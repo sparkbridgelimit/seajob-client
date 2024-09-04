@@ -28,7 +28,6 @@ export const fetchJobDefines = async () => {
     })
     .catch((err) => {
       console.error(err);
-      
     });
 }
 
