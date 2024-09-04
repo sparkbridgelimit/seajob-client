@@ -12,7 +12,7 @@
   "tauri": {
     "allowlist": {
       "window": {
-          "setFullscreen": false
+        "setFullscreen": false
       },
       "all": true,
       "http": {
@@ -36,6 +36,11 @@
     "bundle": {
       "macOS": {
         "signingIdentity": "Apple Development: aleksichen@gmail.com (SQX223S734)"
+      },
+      "windows": {
+        "wix": {
+          "language": "zh-CN"
+        }
       },
       "active": true,
       "targets": "all",
