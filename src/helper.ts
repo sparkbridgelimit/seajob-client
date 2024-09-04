@@ -5,15 +5,6 @@ export const isTauri = () => {
 };
 
 export async function get_token() {
-  if (isTauri()) {
-    try {
-      return await invoke("get_token", {});
-    } catch (error) {
-      console.error(error);
-    } finally {
-      return Promise.resolve();
-    }
-  }
   return Promise.resolve(window.localStorage.getItem('token'));
 }
 
@@ -22,12 +13,16 @@ export const set_token = async (token: string) => {
     await invoke("set_token", { token });
   }
   window.localStorage.setItem('token', token);
-  return Promise.resolve();
+  return Promise.resolve(true);
 }
 
 export const clear_token = async () => {
   if (isTauri()) {
-    await invoke("clear_token", {});
+    try {
+      await invoke("clear_token", {});
+    } catch (error) {
+      console.error(error);
+    }
   }
   window.localStorage.removeItem('token');
   return Promise.resolve();
