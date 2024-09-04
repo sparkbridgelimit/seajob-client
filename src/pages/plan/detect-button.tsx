@@ -5,7 +5,6 @@ import {
   Modal,
   useDisclosure,
   Button,
-  Code,
   Textarea,
 } from "@nextui-org/react";
 import { invoke } from "@tauri-apps/api";
