@@ -17,8 +17,8 @@ export default function DetectButton({}) {
   return (
     <>
       <Button
-        variant="ghost"
-        className="text-gray-600"
+        color="primary"
+        variant="shadow"
         onPress={async () => {
           onOpen();
           invoke("detect_chrome").then((res) => {

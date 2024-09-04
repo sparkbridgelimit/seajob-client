@@ -104,7 +104,7 @@ function Plan() {
         >
           <Space>
             <DetectButton />
-            <NextButton color="primary" onClick={() => addJobDefineHandler()}>
+            <NextButton color="primary" variant="shadow" onClick={() => addJobDefineHandler()}>
               添加投递计划
             </NextButton>
           </Space>
