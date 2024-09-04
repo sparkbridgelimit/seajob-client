@@ -69,8 +69,8 @@ export default function Header() {
     <>
       <div className="flex justify-between items-center p-8">
         <div className="flex items-center space-x-2">
-          <img src="/seajob.jpg" alt="海投助手" className="w-10 h-10" />
-          <span className="text-xl font-bold text-gray-900">海投助手</span>
+          <img src="/icon.png" alt="海投助手" className="w-10 h-10" />
+          <span className="text-xl font-bold text-gray-700">海投助手</span>
         </div>
         {isLogin ? userMenu : NotAuth}
       </div>

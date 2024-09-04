@@ -144,9 +144,12 @@ pub fn clear_token() -> Result<(), String> {
 
 
 #[tauri::command]
-pub fn detect_chrome() -> Result<(), String> {
+pub fn detect_chrome() -> Result<String, String> {
     info!("检测chrome");
     let path: std::path::PathBuf = default_executable().map_err(|e| e.to_string())?;
+    if !path.exists() {
+        return Err("Chrome路径不存在".to_string());
+    }
     info!("Chrome路径: {:?}", path);
-    Ok(())
+    Ok(path.to_str().unwrap().to_string())
 }

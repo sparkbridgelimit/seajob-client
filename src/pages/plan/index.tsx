@@ -6,11 +6,12 @@ import AddJobDefineModal from "./add-job-model";
 import Scan from "../scan";
 import "./index.css";
 import Header from "@/components/header";
-import { Button as NextButton } from "@nextui-org/react";
+import { Modal, Button as NextButton } from "@nextui-org/react";
 import { runTask, stopTask } from "@/store/task";
 import PlanTable from "./plan-table";
 import { fetchJobDefines } from "@/store/job_define";
 import { invoke } from "@tauri-apps/api";
+import DetectButton from "./detect-button";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -103,9 +104,7 @@ function Plan() {
           }}
         >
           <Space>
-            <NextButton color="primary" onClick={async () => await invoke("detect_chrome")}>
-              检测chrome执行路径
-            </NextButton>
+            <DetectButton />
             <NextButton color="primary" onClick={() => addJobDefineHandler()}>
               添加投递计划
             </NextButton>
