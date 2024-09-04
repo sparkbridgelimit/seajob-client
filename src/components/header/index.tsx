@@ -57,7 +57,6 @@ export default function Header() {
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
             <DropdownItem key="logout" onClick={() => actions.signout()}>
-              
               <span className="text-gray-600">登出</span>
             </DropdownItem>
           </DropdownMenu>
