@@ -5,6 +5,10 @@ on:
     branches:
       - deploy
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   publish-tauri:
     permissions:
@@ -37,7 +41,7 @@ jobs:
       - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: '20'
 
       - name: Enable corepack
         run: corepack enable
@@ -47,7 +51,6 @@ jobs:
         with:
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -56,6 +59,9 @@ jobs:
       - name: install frontend dependencies
         # If you don't have `beforeBuildCommand` configured you may want to build your frontend here too.
         run: pnpm install # change this to npm or pnpm depending on which one you use.
+
+      - name: Build Vite + Tauri
+        run: pnpm build
 
       - name: Import Code-Signing Certificate
         uses: apple-actions/import-codesign-certs@v3
