@@ -6,12 +6,12 @@ import SignIn from "./pages/signin";
 
 export const routes = [
   {
-    path: "/",
-    element: <Plan />,
-  },
-  {
     path: "/signin",
     element: <SignIn />,
+  },
+  {
+    path: "/",
+    element: <Plan />,
   },
   {
     path: "/signup",

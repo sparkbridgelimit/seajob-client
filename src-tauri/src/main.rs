@@ -3,6 +3,7 @@
 
 use crate::command::{run_job_define, get_token, set_token, clear_token, detect_chrome};
 use env_logger;
+use log::info;
 use store::init_store;
 use tauri::generate_handler;
 use tauri_plugin_store::StoreBuilder;
@@ -29,7 +30,11 @@ fn main() {
             let _ = store.load();
 
             init_store(store);
-
+            let token = match store::get("token") {
+                Some(serde_json::Value::String(t)) if !t.is_empty() => t,
+                _ => "".to_string()
+            };
+            info!("Using token: {}", token);
             Ok(())
         })
         .invoke_handler(generate_handler![run_job_define, get_token, set_token, clear_token, detect_chrome])

@@ -19,6 +19,8 @@ import jobDefineState, {
 } from "@/store/job_define";
 import { useSnapshot } from "valtio";
 import LogButton from "./log-button";
+import dayjs from "dayjs";
+import moment from "moment";
 
 const columns = [
   {
@@ -114,9 +116,12 @@ export default function PlanTable() {
           </Space>
         );
       case "last_run_time":
-        return item[columnKey] || "--";
+        if (!item[columnKey]) {
+          return "--";
+        }
+        return moment(item[columnKey]).format("YYYY-MM-DD HH:mm:ss");
       default:
-        return item[columnKey];
+        return item[columnKey] || '--';
     }
   }, []);
 

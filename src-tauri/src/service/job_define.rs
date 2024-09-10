@@ -14,7 +14,9 @@ pub struct JobDefineSaveCookieRequest {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct JobDefineSaveCookieRes;
+pub struct JobDefineSaveCookieRes {
+    pub success: bool,
+}
 
 pub async fn save_cookie(req: JobDefineSaveCookieRequest) -> Result<JobDefineSaveCookieRes, ApiError> {
     info!("保存cookie");

@@ -63,11 +63,12 @@ function Plan() {
       message.success("任务运行失败, 请检查日志");
     });
 
-    const l8 = listen("greet_done", (event) => {
+    const l8 = listen("greet_done", async (event) => {
       console.log('greet_done: ', event.payload);
       try {
         const data = parseLog(event.payload as string);
-        log_task(data);
+        await log_task(data);
+        fetchJobDefines();
       } catch (error) { 
         console.error(error);
       }

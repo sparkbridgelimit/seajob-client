@@ -93,6 +93,7 @@ pub async fn run_job_define(id: i64, count: i32, headless: bool, app: AppHandle)
         }
         Err(_) => {
             // 没有 cookie，生成新的 cookie
+            info!("没有cookie, 生成新的 cookie");
             gen_and_save_cookie(id, app.clone()).await?
         }
     };
