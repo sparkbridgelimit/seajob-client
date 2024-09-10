@@ -16,7 +16,6 @@ export default function LogButton({}) {
 
   useEffect(() => {
     const l1 = listen("run_log", (event) => {
-      console.log(event.payload);
       setLogs((logs) => [...logs, event.payload as string]);
     });
     return () => {

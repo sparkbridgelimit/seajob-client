@@ -11,6 +11,8 @@ import { runTask, stopTask } from "@/store/task";
 import PlanTable from "./plan-table";
 import { fetchJobDefines } from "@/store/job_define";
 import DetectButton from "./detect-button";
+import { log_task } from "@/api/job_define";
+import { parseLog } from "@/helper";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -61,6 +63,16 @@ function Plan() {
       message.success("任务运行失败, 请检查日志");
     });
 
+    const l8 = listen("greet_done", (event) => {
+      console.log('greet_done: ', event.payload);
+      try {
+        const data = parseLog(event.payload as string);
+        log_task(data);
+      } catch (error) { 
+        console.error(error);
+      }
+    });
+
     return () => {
       l1.then((unlisten) => unlisten());
       l2.then((unlisten) => unlisten());
@@ -69,6 +81,7 @@ function Plan() {
       l5.then((unlisten) => unlisten());
       l6.then((unlisten) => unlisten());
       l7.then((unlisten) => unlisten());
+      l8.then((unlisten) => unlisten());
     };
   }, []);
 

@@ -1,21 +1,36 @@
+import { activateCodeConsume } from "@/api/auth";
 import auth, { actions } from "@/store/auth";
 import { Button } from "@nextui-org/button";
 import {
   Avatar,
+  Chip,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Input,
+  useDisclosure,
 } from "@nextui-org/react";
-import { Space } from "antd";
-import { useMemo } from "react";
+import { message, Space } from "antd";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSnapshot } from "valtio";
 
 export default function Header() {
-  const { isLogin } = useSnapshot(auth);
+  const { isLogin, memberLabel, memberLabelColor } = useSnapshot(auth);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [code, setCode] = useState<string>("");
 
   let location = useLocation();
+  useEffect(() => {
+    actions.queryMemberInfo();
+  }, []);
+
   const NotAuth = useMemo(() => {
     return (
       <div>
@@ -46,24 +61,27 @@ export default function Header() {
   const userMenu = useMemo(() => {
     return (
       <div>
-        <Dropdown placement="bottom-end">
-          <DropdownTrigger>
-            <Avatar
-              isBordered
-              color="primary"
-              showFallback
-              src="https://i.pravatar.cc/150?u=a042581f4e29026024d"
-            />
-          </DropdownTrigger>
-          <DropdownMenu aria-label="Profile Actions" variant="flat">
-            <DropdownItem key="logout" onClick={() => actions.signout()}>
-              <span className="text-gray-600">登出</span>
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+        <Space>
+          <Chip color={memberLabelColor} className="text-gray-100">
+            {memberLabel}
+          </Chip>
+          <Dropdown placement="bottom-end">
+            <DropdownTrigger>
+              <Avatar isBordered color="primary" showFallback />
+            </DropdownTrigger>
+            <DropdownMenu variant="flat">
+              <DropdownItem key="active" onClick={onOpen}>
+                激活码兑换
+              </DropdownItem>
+              <DropdownItem key="logout" onClick={() => actions.signout()}>
+                <span className="text-gray-600">登出</span>
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </Space>
       </div>
     );
-  }, []);
+  }, [isLogin, memberLabel]);
 
   return (
     <>
@@ -74,6 +92,61 @@ export default function Header() {
         </div>
         {isLogin ? userMenu : NotAuth}
       </div>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="text-slate-700">请输入激活码</ModalHeader>
+              <ModalBody>
+                <Input
+                  placeholder="激活码"
+                  value={code}
+                  className="mb-4 text-slate-600"
+                  color="default"
+                  onChange={(e) => setCode(e.target.value)}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button
+                  color="danger"
+                  variant="flat"
+                  onPress={() => {
+                    setCode("");
+                    onClose();
+                  }}
+                >
+                  取消
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={async () => {
+                    if (!code) {
+                      return message.info("请输入激活码");
+                    }
+                    try {
+                      const success = await activateCodeConsume({ code });
+                      if (!success) {
+                        message.info("激活失败");
+                        return;
+                      }
+                      message.success('激活成功');
+                      actions.queryMemberInfo();
+                    } catch (e) {
+                      console.log(e);
+                      message.warning("激活失败");
+                    } finally {
+                      onClose();
+                      setCode("");
+                    }
+                  }}
+                >
+                  兑换
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 }

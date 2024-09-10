@@ -32,7 +32,7 @@ export async function signUp(data: ISignUpReq): Promise<ISignUpRes> {
     path: '/api/f/sign_up',
     data
   })
-  .then(res => res.data || {});
+    .then(res => res.data || {});
 }
 
 export async function signOut() {
@@ -41,6 +41,48 @@ export async function signOut() {
     env: 'PROD',
     path: '/api/s/sign_out',
     data: {}
+  })
+    .then(res => res.data || {});
+}
+
+export interface IQueryMemberInfoRes {
+  biz_code: string;
+  expires_at: string;
+  create_time: string
+}
+
+export async function queryMemberInfo(): Promise<IQueryMemberInfoRes> {
+  return request({
+    path: '/api/s/member/info',
+    data: {},
+    app: 'auth',
+    env: 'PROD'
+  })
+    .then(res => res.data);
+}
+
+export async function checkMemberValid(): Promise<boolean> {
+  return request({
+    path: '/api/s/member/check',
+    data: {},
+    app: 'auth',
+    env: 'PROD'
+  })
+    .then(res => res.data);
+}
+
+export interface IActivateCodeConsumeReq {
+  code: string;
+}
+
+export async function activateCodeConsume({ code }: IActivateCodeConsumeReq): Promise<boolean> {
+  return request({
+    path: '/api/s/activate/consume',
+    data: {
+      code
+    },
+    app: 'auth',
+    env: 'PROD'
   })
     .then(res => res.data || {});
 }

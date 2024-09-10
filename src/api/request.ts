@@ -1,4 +1,4 @@
-import { get_token } from "@/helper";
+import { clear_token, get_token } from "@/helper";
 import router from "@/router";
 
 export interface IRequestProps {
@@ -39,6 +39,7 @@ export async function request({
   // 如果响应状态码是 401，跳转到 /signin
   if (json.error_code === 401) {
     router.navigate('/signin');
+    clear_token();
     return Promise.reject(new Error('Unauthorized'));
   }
 

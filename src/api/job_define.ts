@@ -88,3 +88,20 @@ export async function saveJobDefineDetail(data: IJobDefineSaveReq) {
   })
   .then(res => res.data || {});
 }
+
+export type ILogTaskReq = {
+  job_task_id: number;
+  job_name: string;
+  company: string;
+  job_link: string;
+  salary_range: number[]
+}
+
+export async function log_task(data: ILogTaskReq) {
+  return request({
+    app: 'seajob',
+    path: '/api/s/job_task/log',
+    data
+  })
+  .then(res => res.data || {});
+}

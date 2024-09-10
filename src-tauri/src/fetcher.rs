@@ -35,6 +35,7 @@ const PLATFORM: &str = "win";
 #[derive(Clone, Debug)]
 pub enum Revision {
   Specific(String),
+  #[allow(dead_code)]
   Latest,
 }
 

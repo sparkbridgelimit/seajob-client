@@ -1,3 +1,4 @@
+import { checkMemberValid } from "@/api/auth";
 import state from "@/store/task";
 import { Button } from "@nextui-org/button";
 import {
@@ -11,6 +12,7 @@ import {
   Switch,
   useDisclosure,
 } from "@nextui-org/react";
+import { message } from "antd";
 import { useState } from "react";
 import { useSnapshot } from "valtio";
 
@@ -24,6 +26,7 @@ export default function RunButton({
   jobDefineId,
 }: RunButtonProps) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
   const [count, setCount] = useState<string>("1");
   const [isSelected, setIsSelected] = useState<boolean>(true);
   const { running, runningJobId } = useSnapshot(state);
@@ -93,8 +96,13 @@ export default function RunButton({
                 </Button>
                 <Button
                   color="primary"
-                  onPress={() => {
-                    onConfirm(count, !isSelected);
+                  onPress={async () => {
+                    const valid = await checkMemberValid();
+                    if (valid) {
+                      onConfirm(count, !isSelected);
+                    } else {
+                      message.error("用户未激活")
+                    }
                     onClose();
                   }}
                 >

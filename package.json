@@ -39,6 +39,7 @@
     "@nextui-org/react": "^2.4.6",
     "@tauri-apps/api": "^1",
     "antd": "^5.20.3",
+    "dayjs": "^1.11.13",
     "framer-motion": "^11.3.30",
     "moment": "^2.30.1",
     "pkg": "^5.8.1",

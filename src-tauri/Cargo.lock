@@ -3861,6 +3861,7 @@ dependencies = [
  "log",
  "mockito",
  "once_cell",
+ "regex",
  "reqwest 0.12.5",
  "reqwest_cookie_store",
  "serde",

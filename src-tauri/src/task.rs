@@ -1,13 +1,28 @@
+use crate::service::job_define::JobDefineRunRes;
 use log::info;
+use regex::Regex;
+use serde::Serialize;
+use std::env;
 use std::path::PathBuf;
 use std::process::Stdio;
-use std::env;
 use tauri::{AppHandle, Manager};
-use crate::service::job_define::JobDefineRunRes;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
 
-pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool, chrome_path: PathBuf) -> Result<(), String> {
+#[derive(Serialize)]
+pub struct TaskLogPayLoad {
+    pub full_name: String,
+    pub salary_min: String,
+    pub salary_max: String,
+    pub detail_url: String,
+}
+
+pub async fn run_task(
+    app: AppHandle,
+    param: JobDefineRunRes,
+    headless: bool,
+    chrome_path: PathBuf,
+) -> Result<(), String> {
     let executor_path = app
         .path_resolver()
         .resolve_resource("resources/seajob-executor")
@@ -33,7 +48,7 @@ pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool, ch
     println!("Chrome_path path: {:?}", chrome_path);
 
     // 设置job_define
-    env::set_var("job_define_id", param.job_define_id.to_string());
+    env::set_var("job_task_id", param.job_task_id.to_string());
     env::set_var("keyword", param.keyword.to_string());
     env::set_var("city_code", param.city_code.to_string());
     env::set_var("salary_range", param.salary_range.to_string());
@@ -45,6 +60,7 @@ pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool, ch
     env::set_var("timeout", param.timeout.to_string());
     env::set_var("target_num", param.target_num.to_string());
     env::set_var("wt2_cookie", param.wt2_cookie.to_string());
+
     let h = match headless {
         true => "true",
         false => "false",
@@ -57,17 +73,25 @@ pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool, ch
         .spawn()
         .map_err(|e| e.to_string())?;
 
+    let log_pattern =
+        Regex::new(r"^OK \| (\d+) \| (.+?) \| \[(\d+)-(\d+)K\] \| (https?://[^\s]+)$")
+            .expect("Invalid regex");
+
+    // 子进程的标准输出
     if let Some(stdout) = child.stdout.take() {
         let mut stdout_reader = BufReader::new(stdout).lines();
         tokio::spawn(async move {
             while let Ok(Some(line)) = stdout_reader.next_line().await {
-                println!("STDOUT: {}", line);
                 info!("STDOUT: {}", line);
-                app.emit_all("run_log", line).unwrap();
+                app.emit_all("run_log", line.clone()).unwrap();
+                if let Some(_) = log_pattern.captures(&line) {
+                    app.emit_all("greet_done", &line).unwrap();
+                }
             }
         });
     }
 
+    // 子进程的标准错误
     if let Some(stderr) = child.stderr.take() {
         let mut stderr_reader = BufReader::new(stderr).lines();
         tokio::spawn(async move {
@@ -84,7 +108,10 @@ pub async fn run_task(app: AppHandle, param: JobDefineRunRes, headless: bool, ch
     info!("Command executed with status: {:?}", output.status);
 
     if !output.status.success() {
-        return Err(format!("Command exited with non-zero status: {:?}", output.status));
+        return Err(format!(
+            "Command exited with non-zero status: {:?}",
+            output.status
+        ));
     }
 
     return Ok(());
