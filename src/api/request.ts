@@ -18,7 +18,6 @@ export async function request({
   const url = build_path(app, path, env);
 
   const token = await get_token();
-  console.log('token:', token);
   const headers = {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + token,
@@ -40,10 +39,10 @@ export async function request({
   if (json.error_code === 401) {
     router.navigate('/signin');
     clear_token();
-    return Promise.reject(new Error('Unauthorized'));
+    return Promise.reject('Unauthorized');
   }
 
-  return Promise.reject(new Error(json.message));
+  return Promise.reject(json.err_message);
 }
 
 const APP_HOST_MAP: { [key: string]: { [key: string]: string } } = {

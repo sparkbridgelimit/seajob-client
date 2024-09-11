@@ -1,11 +1,10 @@
 import { message } from "antd";
 import "./index.css";
-import { signIn } from "@/api/auth";
-import { set_token } from "@/helper";
 import router from "@/router";
 import { useState } from "react";
 import { Button } from "@nextui-org/button";
 import Header from "@/components/header";
+import { actions } from "@/store/auth";
 
 export default function SignIn() {
   const [username, setUserName] = useState("");
@@ -17,13 +16,14 @@ export default function SignIn() {
       return;
     }
     try {
-      const data = await signIn({
+      await actions.signIn(
         username,
         password,
-      });
-      set_token(data.token);
-      message.success("登陆成功，正在跳转...");
+      );
+      console.log('登陆成功')
+      message.success("登陆成功");
       // 跳转到首页
+      console.log('跳转到首页')
       router.navigate("/plan");
     } catch (error) {
       message.error("登陆失败，请重试");

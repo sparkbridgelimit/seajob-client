@@ -13,6 +13,7 @@ import { fetchJobDefines } from "@/store/job_define";
 import DetectButton from "./detect-button";
 import { log_task } from "@/api/job_define";
 import { parseLog } from "@/helper";
+import { invoke } from "@tauri-apps/api";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -54,12 +55,14 @@ function Plan() {
     const l6 = listen("job_finish", (event) => {
       console.log(event.payload);
       stopTask();
+      fetchJobDefines();
       message.success("任务运行完成");
     });
 
     const l7 = listen("job_error", (event) => {
       console.log(event.payload);
       stopTask();
+      fetchJobDefines();
       message.success("任务运行失败, 请检查日志");
     });
 
@@ -68,8 +71,7 @@ function Plan() {
       try {
         const data = parseLog(event.payload as string);
         await log_task(data);
-        fetchJobDefines();
-      } catch (error) { 
+      } catch (error) {
         console.error(error);
       }
     });
@@ -117,6 +119,9 @@ function Plan() {
           }}
         >
           <Space>
+            {/* <NextButton color="primary" variant="shadow" onClick={async () => await invoke("test_bin", {})}>
+              Test
+            </NextButton> */}
             <DetectButton />
             <NextButton color="primary" variant="shadow" onClick={() => addJobDefineHandler()}>
               添加投递计划

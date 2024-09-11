@@ -1,7 +1,6 @@
 import { message } from "antd";
 import "./index.css";
-import { signUp } from "@/api/auth";
-import { set_token } from "@/helper";
+import { actions } from "@/store/auth";
 import router from "@/router";
 import { useState } from "react";
 import { Button } from "@nextui-org/button";
@@ -22,20 +21,29 @@ export default function SignUp() {
       return;
     }
     try {
-      const data = await signUp({
+      await actions.signUp(
         username,
         password,
-      });
-      set_token(data.token);
-      message.success("注册成功，正在跳转...");
+      );
+      console.log('注册成功')
+      message.success("注册成功");
       // 跳转到首页
+      console.log('跳转')
       router.navigate("/plan");
     } catch (error) {
-      message.error("注册失败，请重试");
+      message.error("注册失败" + error);
       console.error("注册失败:", error);
+      resetForm();
     } finally {
     }
   };
+
+  const resetForm = () => {
+    setUserName("");
+    setPassword("");
+    setPasswordRepeat("");
+  }
+
   return (
     <div className="background">
       <div className="min-h-screen flex flex-col justify-between">
@@ -67,6 +75,7 @@ export default function SignUp() {
                   <input
                     id="username"
                     onChange={(e) => setUserName(e.target.value)}
+                    value={username}
                     type="text"
                     placeholder="请输入您的账号"
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-gray-900"
@@ -87,6 +96,7 @@ export default function SignUp() {
                   </span>
                   <input
                     onChange={(e) => setPassword(e.target.value)}
+                    value={password}
                     type="password"
                     id="password"
                     placeholder="请输入您的密码"
@@ -107,6 +117,7 @@ export default function SignUp() {
                   </span>
                   <input
                     onChange={(e) => setPasswordRepeat(e.target.value)}
+                    value={passwordRepeat}
                     type="password"
                     id="password-repeat"
                     placeholder="请重复输入您的密码"

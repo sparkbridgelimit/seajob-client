@@ -23,20 +23,22 @@ pub async fn run_task(
     headless: bool,
     chrome_path: PathBuf,
 ) -> Result<(), String> {
-    let executor_path = app
+    // 根据操作系统和架构选择相应的二进制文件
+    let binary_name = match (std::env::consts::OS, std::env::consts::ARCH) {
+        ("windows", _) => "resources/seajob-executor-win.exe",
+        ("macos", "x86_64") => "resources/seajob-executor-macos",
+        ("macos", "aarch64") => "resources/seajob-executor-macos-arm64",
+        ("linux", _) => "resources/seajob-executor-linux",
+        _ => return Err("Unsupported OS or architecture".to_string()),
+    };
+
+    let executor_path: PathBuf = app
         .path_resolver()
-        .resolve_resource("resources/seajob-executor")
-        .expect("failed to resolve resource");
+        .resolve_resource(binary_name)
+        .ok_or_else(|| "Failed to resolve resource".to_string())?;
 
     // 打印可执行文件路径以进行调试
     println!("Executable path: {:?}", executor_path);
-
-    // let chrome_path = app
-    //     .path_resolver()
-    //     .resolve_resource(
-    //         "resources/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
-    //     )
-    //     .expect("failed to resolve resource");
 
     // 设置环境变量
     env::set_var(

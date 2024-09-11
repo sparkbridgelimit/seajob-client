@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use crate::command::{run_job_define, get_token, set_token, clear_token, detect_chrome};
+use crate::command::{run_job_define, get_token, set_token, clear_token, detect_chrome, test_bin};
 use env_logger;
 use log::info;
 use store::init_store;
@@ -37,7 +37,7 @@ fn main() {
             info!("Using token: {}", token);
             Ok(())
         })
-        .invoke_handler(generate_handler![run_job_define, get_token, set_token, clear_token, detect_chrome])
+        .invoke_handler(generate_handler![run_job_define, get_token, set_token, clear_token, detect_chrome, test_bin])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

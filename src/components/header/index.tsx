@@ -1,4 +1,6 @@
 import { activateCodeConsume } from "@/api/auth";
+import { clear_token } from "@/helper";
+import router from "@/router";
 import auth, { actions } from "@/store/auth";
 import { Button } from "@nextui-org/button";
 import {
@@ -28,7 +30,9 @@ export default function Header() {
 
   let location = useLocation();
   useEffect(() => {
-    actions.queryMemberInfo();
+    if (isLogin) {
+      actions.queryMemberInfo();
+    }
   }, []);
 
   const NotAuth = useMemo(() => {
@@ -58,6 +62,13 @@ export default function Header() {
     );
   }, []);
 
+  const signOut = async () => {
+    try {
+      await actions.signout();
+    } catch (e) {}
+    router.navigate("/signin");
+  };
+
   const userMenu = useMemo(() => {
     return (
       <div>
@@ -73,7 +84,7 @@ export default function Header() {
               <DropdownItem key="active" onClick={onOpen}>
                 激活码兑换
               </DropdownItem>
-              <DropdownItem key="logout" onClick={() => actions.signout()}>
+              <DropdownItem key="logout" onClick={() => signOut()}>
                 <span className="text-gray-600">登出</span>
               </DropdownItem>
             </DropdownMenu>

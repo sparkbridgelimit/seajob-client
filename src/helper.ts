@@ -5,28 +5,30 @@ export const isTauri = () => {
 };
 
 export async function get_token() {
-  return Promise.resolve(window.localStorage.getItem('token'));
+  return window.localStorage.getItem('token');
 }
 
 export const set_token = async (token: string) => {
   if (isTauri()) {
-    await invoke("set_token", { token });
+    try {
+      await invoke("set_token", { token });
+    } catch (error) {
+      console.error("Error setting token in Tauri:", error);
+    }
   }
   window.localStorage.setItem('token', token);
-  return Promise.resolve(true);
-}
+};
 
 export const clear_token = async () => {
   if (isTauri()) {
     try {
       await invoke("clear_token", {});
     } catch (error) {
-      console.error(error);
+      console.error("Error setting token in Tauri:", error);
     }
   }
   window.localStorage.removeItem('token');
-  return Promise.resolve();
-}
+};
 
 export function parseLog(log: string) {
   // 正则表达式用于匹配日志中的字段

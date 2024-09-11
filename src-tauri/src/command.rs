@@ -1,3 +1,5 @@
+use std::process::{Command, Stdio};
+use std::path::PathBuf;
 use crate::browser::default_executable;
 use crate::login::{self, check_auth};
 use crate::service::job_define::{
@@ -153,4 +155,39 @@ pub fn detect_chrome() -> Result<String, String> {
     }
     info!("Chrome路径: {:?}", path);
     Ok(path.to_str().unwrap().to_string())
+}
+
+#[tauri::command]
+pub fn test_bin(app: AppHandle) -> Result<String, String> {
+    // 根据操作系统和架构选择相应的二进制文件
+    let binary_name = match (std::env::consts::OS, std::env::consts::ARCH) {
+        ("windows", _) => "resources/seajob-executor-win.exe",
+        ("macos", "x86_64") => "resources/seajob-executor-macos",
+        ("macos", "aarch64") => "resources/seajob-executor-macos-arm64",
+        ("linux", _) => "resources/seajob-executor-linux",
+        _ => return Err("Unsupported OS or architecture".to_string()),
+    };
+
+    let executor_path: PathBuf = app
+        .path_resolver()
+        .resolve_resource(binary_name)
+        .ok_or_else(|| "Failed to resolve resource".to_string())?;
+
+    // 打印可执行文件路径以进行调试
+    println!("Executable path: {:?}", executor_path);
+
+    // 检查文件是否存在以及是否有执行权限
+    if !executor_path.exists() {
+        return Err(format!("Executable not found at: {:?}", executor_path));
+    }
+
+    // 启动子进程
+    let mut child = Command::new(executor_path)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("Failed to start process: {}", e.to_string()))?;
+
+    Ok("Process started".to_string())
+
 }

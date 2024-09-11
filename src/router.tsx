@@ -10,10 +10,6 @@ export const routes = [
     element: <SignIn />,
   },
   {
-    path: "/",
-    element: <Plan />,
-  },
-  {
     path: "/signup",
     element: <SignUp />,
   },

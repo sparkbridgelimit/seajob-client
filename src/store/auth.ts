@@ -1,17 +1,18 @@
 import { proxy } from 'valtio';
-import { activateCodeConsume, checkMemberValid, IQueryMemberInfoRes, queryMemberInfo, signIn, signOut } from "@/api/auth";
-import router from '@/router';
+import { activateCodeConsume, checkMemberValid, IQueryMemberInfoRes, queryMemberInfo, signIn, signOut, signUp } from "@/api/auth";
 import { clear_token, set_token } from '@/helper';
 import dayjs from 'dayjs';  // 用于处理日期格式
 
 const state = proxy({
-  token: window.localStorage.getItem('token'),
-  isLogin: !!window.localStorage.getItem('token'),
   memberInfo: null as IQueryMemberInfoRes | null,
+  token: window.localStorage.getItem('token') || null,  // 在状态中维护 token
+  get isLogin(): boolean {   
+    console.log('isLogin: ', this.token)
+    return this.token ? true : false;
+  },
   // 根据memberInfo生成会员标签
   get memberLabel(): string {
     if (!this.memberInfo) {
-      console.log('您还未激活会员')
       return '您还未激活会员';  // 没有会员信息，表示未激活
     }
     const now = dayjs();  // 当前时间
@@ -45,39 +46,38 @@ export const actions = {
       await signOut();
     } catch (error) {
       console.error("登出失败:", error);
-    } finally {
-      clear_token();
-      router.navigate("/signin");
     }
+    await clear_token();
+    state.token = null;
   },
-  async signin(username: string, password: string) {
+  async signIn(username: string, password: string) {
     try {
       const data = await signIn({
         username,
         password,
       });
-      set_token(data.token);
+      await set_token(data.token);
+      state.token = data.token;
       // 跳转到首页
-      router.navigate("/plan");
     } catch (error) {
       console.error("登陆失败:", error);
     } finally {
     }
   },
-  async signup(username: string, password: string) {
+  async signUp(username: string, password: string) {
     try {
-      const data = await signIn({
+      const data = await signUp({
         username,
         password,
       });
-      set_token(data.token);
-      // 跳转到首页
-      router.navigate("/plan");
+      await set_token(data.token);
+      state.token = data.token;
     } catch (error) {
-      console.error("登陆失败:", error);
-    } finally {
+      console.error("注册失败:", error);
+      return Promise.reject(error);
     }
   },
+
   async checkMemberValid() {
     try {
       return await checkMemberValid();

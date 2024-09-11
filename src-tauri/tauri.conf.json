@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "海投助手",
-    "version": "0.0.1"
+    "version": "0.0.2"
   },
   "tauri": {
     "allowlist": {
@@ -53,7 +53,8 @@
         "icons/icon.ico"
       ],
       "resources": [
-        "resources/seajob-executor"
+        "resources/seajob-executor-macos-arm64",
+        "resources/seajob-executor-win.exe"
       ]
     }
   }

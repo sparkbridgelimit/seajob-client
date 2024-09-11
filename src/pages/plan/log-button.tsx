@@ -8,11 +8,12 @@ import {
   ScrollShadow,
 } from "@nextui-org/react";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function LogButton({}) {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [logs, setLogs] = useState<string[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const l1 = listen("run_log", (event) => {
@@ -22,6 +23,13 @@ export default function LogButton({}) {
       l1.then((unlisten) => unlisten());
     };
   }, []);
+
+  useEffect(() => {
+    // 当日志更新时，自动滚动到底部
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   return (
     <>
@@ -52,6 +60,7 @@ export default function LogButton({}) {
                   style={{ backgroundColor: "#363449", color: "#f4f4f4" }}
                   isEnabled={false}
                   size={0}
+                  ref={scrollRef}
                 >
                   {logs.map((log, index) => (
                     <p key={index}>{log}</p>
