@@ -13,7 +13,6 @@ import { fetchJobDefines } from "@/store/job_define";
 import DetectButton from "./detect-button";
 import { log_task } from "@/api/job_define";
 import { parseLog } from "@/helper";
-import { invoke } from "@tauri-apps/api";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");

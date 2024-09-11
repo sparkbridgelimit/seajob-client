@@ -1,5 +1,4 @@
 import { activateCodeConsume } from "@/api/auth";
-import { clear_token } from "@/helper";
 import router from "@/router";
 import auth, { actions } from "@/store/auth";
 import { Button } from "@nextui-org/button";
