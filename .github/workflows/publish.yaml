@@ -69,10 +69,22 @@ jobs:
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
         with:
-          tagName: app-v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
+          tagName: app-v__VERSION__
           releaseName: '海投助手 v__VERSION__'
           releaseBody: 'See the assets to download this version and install.'
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
+      
+      # - name: Install Wrangler
+      #   run: pnpm install -g wrangler
+      
+      # - name: Upload to Cloudflare R2
+      #   run: |
+      #     wrangler r2 object put my-bucket/_0.0.6_x64-setup.exe --file ./src-tauri/target/release/bundle/windows/_0.0.6_x64-setup.exe
+      #     wrangler r2 object put my-bucket/_0.0.6_aarch64.dmg --file ./src-tauri/target/release/bundle/macos/_0.0.6_aarch64.dmg
+      #   env:
+      #     CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      #     CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
