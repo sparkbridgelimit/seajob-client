@@ -1,5 +1,3 @@
-use std::process::{Command, Stdio};
-use std::path::PathBuf;
 use crate::browser::default_executable;
 use crate::login::{self, check_auth};
 use crate::service::job_define::{
@@ -7,6 +5,8 @@ use crate::service::job_define::{
     JobDefineSaveCookieRequest,
 };
 use crate::{store, task};
+use std::path::PathBuf;
+use std::process::{Command, Stdio};
 
 use log::info;
 use serde_json::Value;
@@ -67,7 +67,9 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
 
 // 生成并保存新的 cookie
 async fn gen_and_save_cookie(id: i64, app: AppHandle) -> Result<String, String> {
-    let new_cookie = gen_cookie(app).await?;
+    let new_cookie = gen_cookie(app.clone()).await?;
+    // 关闭弹窗
+    app.emit_all("scan-success", ()).unwrap();
     save_cookie(JobDefineSaveCookieRequest {
         job_define_id: id,
         cookie: new_cookie.clone(),
@@ -78,7 +80,12 @@ async fn gen_and_save_cookie(id: i64, app: AppHandle) -> Result<String, String> 
 }
 
 #[tauri::command]
-pub async fn run_job_define(id: i64, count: i32, headless: bool, app: AppHandle) -> Result<i64, String> {
+pub async fn run_job_define(
+    id: i64,
+    count: i32,
+    headless: bool,
+    app: AppHandle,
+) -> Result<i64, String> {
     info!("运行任务的 ID: {}, 目标次数: {}", id, count);
     // 获取或生成 cookie
     let _cookie = match get_last_cookie(JobDefineCookieReq { job_define_id: id }).await {
@@ -110,9 +117,14 @@ pub async fn run_job_define(id: i64, count: i32, headless: bool, app: AppHandle)
 
     info!("任务创建成功: {:?}", create_task_result);
     app.emit_all("job_starting", id).unwrap();
-    task::run_task(app.clone(), create_task_result, headless, default_executable().unwrap())
-        .await
-        .map_err(|e| e.to_string())?;
+    task::run_task(
+        app.clone(),
+        create_task_result,
+        headless,
+        default_executable().unwrap(),
+    )
+    .await
+    .map_err(|e| e.to_string())?;
 
     app.emit_all("job_finish", id).unwrap();
     Ok(id)
@@ -144,7 +156,6 @@ pub fn clear_token() -> Result<(), String> {
     let _ = store::delete("token");
     Ok(())
 }
-
 
 #[tauri::command]
 pub fn detect_chrome() -> Result<String, String> {
@@ -189,5 +200,4 @@ pub fn test_bin(app: AppHandle) -> Result<String, String> {
         .map_err(|e| format!("Failed to start process: {}", e.to_string()))?;
 
     Ok("Process started".to_string())
-
 }

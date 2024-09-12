@@ -174,9 +174,9 @@ export default function PlanDetail() {
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Space>
-            <Button type="default" onClick={() => console.log("运行")}>
+            {/* <Button type="default" onClick={() => console.log("运行")}>
               运行
-            </Button>
+            </Button> */}
             <Button type="default" htmlType="submit" disabled={!isModified}>
               保存
             </Button>

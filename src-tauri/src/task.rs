@@ -73,7 +73,11 @@ pub async fn run_task(
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| {
+            let err_msg = format!("Failed to start the process: {}", e);
+            eprintln!("{}", err_msg);
+            err_msg
+        })?;
 
     let log_pattern =
         Regex::new(r"^OK \| (\d+) \| (.+?) \| \[(\d+)-(\d+)K\] \| (https?://[^\s]+)$")
