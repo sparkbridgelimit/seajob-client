@@ -7,13 +7,13 @@
   },
   "package": {
     "productName": "HaiTouZhuShou",
-    "version": "0.0.7"
+    "version": "0.0.8"
   },
   "tauri": {
     "updater": {
       "active": true,
       "endpoints": [
-        "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}"
+        "https://seajob-update.aleksiwork.com/"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDUwQ0FCMDJDNkMyQ0U2NjYKUldSbTVpeHNMTERLVUlTU2I5TEJRRE1OUTJqK0ErUXJEeW5nbmFDOXQyK3p3bTQ1NWh6K0E3c1cK"
