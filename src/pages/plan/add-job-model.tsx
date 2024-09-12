@@ -60,7 +60,7 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
         onFinish={onFinish}
         layout="vertical"
         initialValues={{
-          keyword: "你好",
+          keyword: "",
           salary_range: [10, 30],
           city_code: "101280600",
         }}
