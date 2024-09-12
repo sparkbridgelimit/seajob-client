@@ -28,11 +28,17 @@ export default function Header() {
   const [code, setCode] = useState<string>("");
 
   let location = useLocation();
+
   useEffect(() => {
     if (isLogin) {
       actions.queryMemberInfo();
     }
   }, []);
+
+  const isShowUserMenu = () => {
+    const needAuthRoutes = ['/signup', '/signin'].indexOf(location.pathname) === -1;
+    return isLogin && needAuthRoutes;
+  };
 
   const NotAuth = useMemo(() => {
     return (
@@ -100,7 +106,7 @@ export default function Header() {
           <img src="/icon.png" alt="海投助手" className="w-10 h-10" />
           <span className="text-xl font-bold text-gray-700">海投助手</span>
         </div>
-        {isLogin ? userMenu : NotAuth}
+        {isShowUserMenu() ? userMenu : NotAuth}
       </div>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
         <ModalContent>

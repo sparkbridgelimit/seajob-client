@@ -1,4 +1,4 @@
-import { Navigate, createBrowserRouter } from "react-router-dom";
+import { Navigate, createHashRouter } from "react-router-dom";
 import Plan from "@/pages/plan";
 import PlanDetail from "@/pages/plan-detail";
 import SignUp from "./pages/signup";
@@ -31,6 +31,6 @@ export const routes = [
   }
 ];
 
-export const router = createBrowserRouter(routes);
+export const router = createHashRouter(routes);
 
 export default router;

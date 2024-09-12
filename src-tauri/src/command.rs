@@ -193,7 +193,7 @@ pub fn test_bin(app: AppHandle) -> Result<String, String> {
     }
 
     // 启动子进程
-    let mut child = Command::new(executor_path)
+    let _child = Command::new(executor_path)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()

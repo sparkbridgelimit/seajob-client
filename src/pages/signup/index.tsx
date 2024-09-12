@@ -16,6 +16,10 @@ export default function SignUp() {
       message.error("请输入账号和密码");
       return;
     }
+    if (password.length < 6) {
+      message.error("密码必须至少为6位");
+      return;
+    }
     if (password !== passwordRepeat) {
       message.error("两次输入的密码不一致");
       return;
@@ -99,7 +103,7 @@ export default function SignUp() {
                     value={password}
                     type="password"
                     id="password"
-                    placeholder="请输入您的密码"
+                    placeholder="请输入6位以上的密码"
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none text-gray-900"
                   />
                 </div>

@@ -34,13 +34,12 @@ export default function DetectButton({}) {
           {() => (
             <>
               <ModalHeader className="text-slate-700">
-                执行路径检测通过
+                执行路径检测结果
               </ModalHeader>
               <ModalBody>
                 <Textarea
                   isReadOnly
                   labelPlacement="outside"
-                  placeholder="Enter your description"
                   value={path}
                   className="mb-4"
                   color="primary"

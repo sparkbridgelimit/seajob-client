@@ -1,5 +1,13 @@
-import React from "react";
-import { Modal, Form, Input, Slider, Button, SliderSingleProps, Select } from "antd";
+import React, { useState } from "react";
+import {
+  Modal,
+  Form,
+  Input,
+  Slider,
+  Button,
+  SliderSingleProps,
+  Select,
+} from "antd";
 import TextArea from "antd/es/input/TextArea";
 import cityList from "@/data/city";
 
@@ -15,12 +23,17 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
   onConfirm = () => {},
 }) => {
   const [form] = Form.useForm();
+  const [salaryRange, setSalaryRange] = useState([10, 30]);
 
   const onFinish = (values: any) => {
     console.log("Received values:", values);
     values.salary_range = values.salary_range.map((item: any) => Number(item));
     onConfirm(values);
     form.resetFields();
+  };
+
+  const onSalaryChange = (value: any) => {
+    setSalaryRange(value); // 更新薪资范围
   };
 
   const marks: SliderSingleProps["marks"] = {
@@ -47,8 +60,8 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
         onFinish={onFinish}
         layout="vertical"
         initialValues={{
-          hello_text: "你好",
-          salary_range: [10, 20],
+          keyword: "你好",
+          salary_range: [10, 30],
           city_code: "101280600",
         }}
       >
@@ -57,26 +70,33 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
           label="投递计划名称"
           rules={[{ required: true, message: "请输入投递计划名称" }]}
         >
-          <Input />
+          <Input placeholder="投递计划名称" />
         </Form.Item>
         <Form.Item
           name="job_define_desc"
           label="投递计划说明"
           rules={[{ required: false, message: "请输入投递计划说明" }]}
         >
-          <TextArea />
+          <TextArea placeholder="说点什么好吧, 给你自己记录的, 不写也行" />
         </Form.Item>
         <Form.Item
           name="keyword"
-          label="岗位关键字"
-          rules={[{ required: true, message: "请输入岗位关键字" }]}
+          label="岗位关键字(用于搜索岗位)"
+          rules={[{ required: false, message: "请输入岗位关键字" }]}
         >
-          <Input />
+          <Input placeholder="开发、运营、产品经理、销售..." />
+        </Form.Item>
+        <Form.Item
+          name="hello_text"
+          label="打招呼文案"
+          rules={[{ required: true, message: "请输入你和Boss的开场白" }]}
+        >
+          <TextArea placeholder="你好, 我觉得我胜任这个职位, 可以详聊一下吗?" rows={2} />
         </Form.Item>
         <Form.Item
           name="city_code"
-          label="城市代码"
-          rules={[{ required: true, message: "请输入城市代码" }]}
+          label="选择期望的城市"
+          rules={[{ required: true, message: "选择期望的城市" }]}
         >
           <Select
             showSearch
@@ -88,8 +108,8 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
         </Form.Item>
         <Form.Item
           name="salary_range"
-          label="薪资范围(k)"
-          rules={[{ required: true, message: "Please enter salary range" }]}
+          label={`薪资范围: (${salaryRange[0]}-${salaryRange[1]}K)`}
+          rules={[{ required: true, message: "请选择" }]}
         >
           <Slider
             marks={marks}
@@ -97,6 +117,8 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
             range
             min={0}
             max={100}
+            value={salaryRange}
+            onChange={onSalaryChange}  // 当值变化时更新状态
           />
         </Form.Item>
       </Form>

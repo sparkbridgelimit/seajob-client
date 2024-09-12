@@ -1,4 +1,6 @@
 .plan-detail {
-  padding: 16px;
+  box-sizing: border-box;
+  margin: 32px;
+  padding: 32px;
   background-color: #fff;
 }

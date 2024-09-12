@@ -77,4 +77,8 @@ export async function saveJobDefineDetail(data: IJobDefineSaveReq) {
   }
 }
 
+export async function setSalaryRange(value: number[]) {
+  state.salary_range = value;
+}
+
 export default state;

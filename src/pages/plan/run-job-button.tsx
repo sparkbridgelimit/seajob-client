@@ -2,7 +2,6 @@ import { checkMemberValid } from "@/api/auth";
 import state from "@/store/task";
 import { Button } from "@nextui-org/button";
 import {
-  CircularProgress,
   Input,
   Modal,
   ModalBody,
@@ -39,7 +38,6 @@ export default function RunButton({
           size="sm"
           disabled
           isLoading
-          spinner={<CircularProgress size="sm" />}
         >
           运行中
         </Button>

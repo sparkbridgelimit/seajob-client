@@ -13,7 +13,7 @@ import TextArea from "antd/es/input/TextArea";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSnapshot } from "valtio";
-import state, { loadJobDefineDetail, saveJobDefineDetail } from "./state";
+import state, { loadJobDefineDetail, saveJobDefineDetail, setSalaryRange } from "./state";
 import "./index.css";
 import cityList from "@/data/city";
 
@@ -67,8 +67,12 @@ export default function PlanDetail() {
     message.success("保存成功");
   };
 
+  const onSalaryChange = (value: any) => {
+    setSalaryRange(value);
+  };
+
   return (
-    <div className="plan-detail">
+    <div className="plan-detail rounded-large shadow-small">
       <Form
         form={form}
         onFinish={onFinish}
@@ -107,8 +111,8 @@ export default function PlanDetail() {
         </Form.Item>
         <Form.Item
           name="salary_range"
-          label="薪资范围(k)"
-          rules={[{ required: true, message: "Please enter salary range" }]}
+          label={`薪资范围: (${snap.salary_range[0]}-${snap.salary_range[1]}K)`}
+          rules={[{ required: true, message: "请选择" }]}
         >
           <Slider
             marks={marks}
@@ -116,6 +120,7 @@ export default function PlanDetail() {
             range
             min={0}
             max={100}
+            onChange={onSalaryChange}  // 当值变化时更新状态
           />
         </Form.Item>
         <Form.Item name="key_kills" label="岗位关键技能">
@@ -169,14 +174,11 @@ export default function PlanDetail() {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="wt2_cookie" label="Cookie">
+        <Form.Item name="wt2_cookie" label="Cookie (清楚后下次运行投递任务需要重新扫码)">
           <Input />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
           <Space>
-            {/* <Button type="default" onClick={() => console.log("运行")}>
-              运行
-            </Button> */}
             <Button type="default" htmlType="submit" disabled={!isModified}>
               保存
             </Button>

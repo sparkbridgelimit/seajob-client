@@ -119,6 +119,11 @@ export default function PlanTable() {
           return "--";
         }
         return moment(item[columnKey]).format("YYYY-MM-DD HH:mm:ss");
+      case "total_apply":
+          if (item[columnKey]) {
+            return item[columnKey];
+          }
+          return "0";
       default:
         return item[columnKey] || '--';
     }
