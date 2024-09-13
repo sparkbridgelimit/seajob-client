@@ -92,7 +92,22 @@ pub fn get_launch_path() -> Result<PathBuf, String> {
         }
     }
 
-    let v = "1354974";
+    let mut v: &str = "";
+    #[cfg(windows)]
+    {
+        v = "1355004"
+    }
+
+    #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
+    {
+        v = "1355021"
+    }
+
+    #[cfg(all(target_os = "macos", not(target_arch = "aarch64")))]
+    {
+        v = "1355028"
+    }
+
     let rev = Revision::Specific(v.to_string());
     let fetcher_options = FetcherOptions::default()
         .with_revision(rev.clone()) 
