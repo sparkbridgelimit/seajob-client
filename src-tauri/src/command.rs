@@ -1,4 +1,6 @@
-use crate::browser::default_executable;
+use crate::browser::get_launch_path;
+use crate::emit::send_install_log;
+use crate::fetcher::{Fetcher, FetcherOptions, Revision};
 use crate::login::{self, check_auth};
 use crate::service::job_define::{
     create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest,
@@ -7,8 +9,9 @@ use crate::service::job_define::{
 use crate::{store, task};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::time::Instant;
 
-use log::info;
+use log::{error, info};
 use serde_json::Value;
 use tauri::{AppHandle, Manager};
 
@@ -121,7 +124,7 @@ pub async fn run_job_define(
         app.clone(),
         create_task_result,
         headless,
-        default_executable().unwrap(),
+        get_launch_path().unwrap(),
     )
     .await
     .map_err(|e| e.to_string())?;
@@ -160,7 +163,7 @@ pub fn clear_token() -> Result<(), String> {
 #[tauri::command]
 pub fn detect_chrome() -> Result<String, String> {
     info!("检测chrome");
-    let path: std::path::PathBuf = default_executable().map_err(|e| e.to_string())?;
+    let path: std::path::PathBuf = get_launch_path().map_err(|e| e.to_string())?;
     if !path.exists() {
         return Err("Chrome路径不存在".to_string());
     }
@@ -200,4 +203,46 @@ pub fn test_bin(app: AppHandle) -> Result<String, String> {
         .map_err(|e| format!("Failed to start process: {}", e.to_string()))?;
 
     Ok("Process started".to_string())
+}
+
+#[tauri::command]
+pub async fn install_chrome() -> Result<String, String> {
+    // 使用 tokio::spawn_blocking 将阻塞操作放到后台任务
+    let result = tokio::task::spawn_blocking(move || {
+        // 设置 FetcherOptions
+        let v = "1354974";
+        let rev = Revision::Specific(v.to_string());
+        let fetcher_options = FetcherOptions::default()
+            .with_revision(rev) // 改为安装最新版本
+            .with_allow_download(true); // 允许下载
+
+        // 创建 Fetcher 实例
+        let fetcher = Fetcher::new(fetcher_options);
+
+        // 启动下载和安装流程
+        let start_time = Instant::now(); // 记录安装开始时间
+        send_install_log("开始安装Chrome");
+
+        // 调用 fetch() 方法，进行安装
+        match fetcher.fetch() {
+            Ok(chrome_path) => {
+                let elapsed = start_time.elapsed();
+                send_install_log(&format!("Chrome 成功安装在 {:?}", chrome_path));
+                send_install_log(&format!("安装耗时 {:.2?}", elapsed));
+                Ok(format!(
+                    "Chrome installed at: {:?}, Installation took {:.2?}",
+                    chrome_path, elapsed
+                ))
+            }
+            Err(e) => {
+                send_install_log(&format!("安装Chrome失败: {:?}", e));
+                error!("Failed to install Chrome: {:?}", e);
+                Err(format!("Failed to install Chrome: {:?}", e))
+            }
+        }
+    })
+    .await
+    .map_err(|e| format!("Task failed: {:?}", e))?; // 展开外层的 Result 并处理错误
+
+    result // 返回内层的 Result
 }

@@ -10,9 +10,9 @@ import { Button as NextButton } from "@nextui-org/react";
 import { runTask, stopTask } from "@/store/task";
 import PlanTable from "./plan-table";
 import { fetchJobDefines } from "@/store/job_define";
-import DetectButton from "./detect-button";
 import { log_task } from "@/api/job_define";
 import { parseLog } from "@/helper";
+import InstallButton from "./install-button";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -118,10 +118,8 @@ function Plan() {
           }}
         >
           <Space>
-            {/* <NextButton color="primary" variant="shadow" onClick={async () => await invoke("test_bin", {})}>
-              Test
-            </NextButton> */}
-            <DetectButton />
+            <InstallButton />
+            {/* <DetectButton /> */}
             <NextButton color="primary" variant="shadow" onClick={() => addJobDefineHandler()}>
               添加投递计划
             </NextButton>
