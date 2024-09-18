@@ -1,9 +1,9 @@
-name: 'publish'
+name: 'manual_build'
 
 on:
   push:
     branches:
-      - deploy
+      - manual_build
 
 concurrency:
   group: release-${{ github.ref }}
