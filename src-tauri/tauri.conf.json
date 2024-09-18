@@ -59,8 +59,8 @@
       ],
       "resources": [
         "resources/seajob-executor-macos-arm64",
-        "resources/seajob-executor-win.exe",
-        "resources/seajob-executor-macos"
+        "resources/seajob-executor-windows-x64.exe",
+        "resources/seajob-executor-macos-x64"
       ]
     }
   }
