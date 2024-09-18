@@ -42,9 +42,6 @@
       "csp": null
     },
     "bundle": {
-      // "macOS": {
-      //   "signingIdentity": "Apple Development: aleksichen@gmail.com (SQX223S734)"
-      // },
       "windows": {
         "wix": {
           "language": "zh-CN"
