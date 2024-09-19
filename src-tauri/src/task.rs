@@ -10,6 +10,8 @@ use std::process::Stdio;
 use tauri::{AppHandle, Manager};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
+
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt; // 用于设置 Unix 风格的权限
 
 #[derive(Serialize)]
