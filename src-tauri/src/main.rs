@@ -21,6 +21,7 @@ mod store;
 mod task;
 mod app_handler;
 mod emit;
+mod helper;
 
 fn main() {
     // 初始化 env_logger

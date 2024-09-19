@@ -17,6 +17,11 @@ import {
   Input,
   useDisclosure,
 } from "@nextui-org/react";
+import { relaunch } from "@tauri-apps/api/process";
+import {
+  checkUpdate,
+  installUpdate,
+} from "@tauri-apps/api/updater";
 import { message, Space } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -36,7 +41,8 @@ export default function Header() {
   }, []);
 
   const isShowUserMenu = () => {
-    const needAuthRoutes = ['/signup', '/signin'].indexOf(location.pathname) === -1;
+    const needAuthRoutes =
+      ["/signup", "/signin"].indexOf(location.pathname) === -1;
     return isLogin && needAuthRoutes;
   };
 
@@ -74,6 +80,28 @@ export default function Header() {
     router.navigate("/signin");
   };
 
+  const checkForUpdate = async () => {
+    try {
+      const { shouldUpdate, manifest } = await checkUpdate();
+      console.log(shouldUpdate, manifest )
+      if (shouldUpdate) {
+        // You could show a dialog asking the user if they want to install the update here.
+        console.log(
+          `Installing update ${manifest?.version}, ${manifest?.date}, ${manifest?.body}`
+        );
+
+        // Install the update. This will also restart the app on Windows!
+        await installUpdate();
+
+        // On macOS and Linux you will need to restart the app manually.
+        // You could use this step to display another confirmation dialog.
+        await relaunch();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const userMenu = useMemo(() => {
     return (
       <div>
@@ -88,6 +116,9 @@ export default function Header() {
             <DropdownMenu variant="flat">
               <DropdownItem key="active" onClick={onOpen}>
                 激活码兑换
+              </DropdownItem>
+              <DropdownItem key="check_update" onClick={() => checkForUpdate()}>
+                <span className="text-gray-600">检查更新</span>
               </DropdownItem>
               <DropdownItem key="logout" onClick={() => signOut()}>
                 <span className="text-gray-600">登出</span>
@@ -145,7 +176,7 @@ export default function Header() {
                         message.info("激活失败");
                         return;
                       }
-                      message.success('激活成功');
+                      message.success("激活成功");
                       actions.queryMemberInfo();
                     } catch (e) {
                       console.log(e);

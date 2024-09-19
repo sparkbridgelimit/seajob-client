@@ -13,6 +13,7 @@ import { fetchJobDefines } from "@/store/job_define";
 import { log_task } from "@/api/job_define";
 import { parseLog } from "@/helper";
 import InstallButton from "./install-button";
+import UpdateButton from "./update-button";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -66,7 +67,7 @@ function Plan() {
     });
 
     const l8 = listen("greet_done", async (event) => {
-      console.log('greet_done: ', event.payload);
+      console.log("greet_done: ", event.payload);
       try {
         const data = parseLog(event.payload as string);
         await log_task(data);
@@ -118,9 +119,13 @@ function Plan() {
           }}
         >
           <Space>
+            <UpdateButton />
             <InstallButton />
-            {/* <DetectButton /> */}
-            <NextButton color="primary" variant="shadow" onClick={() => addJobDefineHandler()}>
+            <NextButton
+              color="primary"
+              variant="shadow"
+              onClick={() => addJobDefineHandler()}
+            >
               添加投递计划
             </NextButton>
           </Space>

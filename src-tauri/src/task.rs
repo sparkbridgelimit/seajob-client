@@ -1,13 +1,16 @@
 use crate::service::job_define::JobDefineRunRes;
+use crate::helper::remove_quarantine_attribute;
 use log::info;
 use regex::Regex;
 use serde::Serialize;
 use std::env;
+use std::fs::{self, Permissions};
 use std::path::PathBuf;
 use std::process::Stdio;
 use tauri::{AppHandle, Manager};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command;
+use std::os::unix::fs::PermissionsExt; // 用于设置 Unix 风格的权限
 
 #[derive(Serialize)]
 pub struct TaskLogPayLoad {
@@ -25,8 +28,8 @@ pub async fn run_task(
 ) -> Result<(), String> {
     // 根据操作系统和架构选择相应的二进制文件
     let binary_name = match (std::env::consts::OS, std::env::consts::ARCH) {
-        ("windows", _) => "resources/seajob-executor-win.exe",
-        ("macos", "x86_64") => "resources/seajob-executor-macos",
+        ("windows", _) => "resources/seajob-executor-windows-x64.exe",
+        ("macos", "x86_64") => "resources/seajob-executor-macos-x64",
         ("macos", "aarch64") => "resources/seajob-executor-macos-arm64",
         ("linux", _) => "resources/seajob-executor-linux",
         _ => return Err("Unsupported OS or architecture".to_string()),
@@ -68,6 +71,24 @@ pub async fn run_task(
         false => "false",
     };
     env::set_var("headless", h.to_string());
+
+    // 设置文件为可执行权限 (仅适用于非 Windows 系统)
+    #[cfg(unix)]
+    {
+        let permissions = Permissions::from_mode(0o755); // rwxr-xr-x
+        fs::set_permissions(&executor_path, permissions).map_err(|e| {
+            let err_msg = format!("Failed to set executable permissions: {}", e);
+            eprintln!("{}", err_msg);
+            err_msg
+        })?;
+    }
+
+    // 清楚apple安全标记
+    #[cfg(all(target_os = "macos"))]
+    if let Err(e) = remove_quarantine_attribute(&executor_path) {
+        eprintln!("{}", e);
+        return Err("清楚apple安全标记失败".to_string());
+    }
 
     let mut child = Command::new(executor_path)
         .stdout(Stdio::piped())
