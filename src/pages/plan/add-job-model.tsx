@@ -10,6 +10,7 @@ import {
 } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import cityList from "@/data/city";
+import { Switch } from "@nextui-org/react";
 
 interface AddJobDefineModalProps {
   open: boolean;
@@ -24,6 +25,7 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [salaryRange, setSalaryRange] = useState([10, 30]);
+  const [ isFilterOfflineBoss, setIsFilterOfflineBoss ] = useState<boolean>(false);
 
   const onFinish = (values: any) => {
     console.log("Received values:", values);
@@ -120,6 +122,12 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
             value={salaryRange}
             onChange={onSalaryChange}  // 当值变化时更新状态
           />
+        </Form.Item>
+        <Form.Item
+          name="filter_offline"
+          label="过滤不在线boss"
+        >
+          <Switch isSelected={isFilterOfflineBoss} onValueChange={setIsFilterOfflineBoss} />
         </Form.Item>
       </Form>
     </Modal>

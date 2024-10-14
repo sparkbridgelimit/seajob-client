@@ -96,7 +96,7 @@ export default function PlanTable() {
               variant="ghost"
               onClick={() => router.navigate(`/plan/${item.id}`)}
             >
-              详情
+              编辑
             </Button>
 
             <Popconfirm

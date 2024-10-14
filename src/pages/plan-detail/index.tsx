@@ -8,12 +8,17 @@ import {
   Space,
   Select,
   message,
+  Switch,
 } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSnapshot } from "valtio";
-import state, { loadJobDefineDetail, saveJobDefineDetail, setSalaryRange } from "./state";
+import state, {
+  loadJobDefineDetail,
+  saveJobDefineDetail,
+  setSalaryRange,
+} from "./state";
 import "./index.css";
 import cityList from "@/data/city";
 
@@ -42,6 +47,7 @@ export default function PlanDetail() {
       key_kills: snap.key_kills,
       exclude_company: snap.exclude_company,
       exclude_job: snap.exclude_job,
+      filter_offline: snap.filter_offline,
       wt2_cookie: snap.wt2_cookie,
     });
   }, [snap, form]);
@@ -120,7 +126,7 @@ export default function PlanDetail() {
             range
             min={0}
             max={100}
-            onChange={onSalaryChange}  // 当值变化时更新状态
+            onChange={onSalaryChange} // 当值变化时更新状态
           />
         </Form.Item>
         <Form.Item name="key_kills" label="岗位关键技能">
@@ -174,7 +180,18 @@ export default function PlanDetail() {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="wt2_cookie" label="Cookie (清楚后下次运行投递任务需要重新扫码)">
+        <Form.Item name="filter_offline" label="过滤不在线BOSS">
+          <Switch
+            onChange={(checked) => {
+              setIsModified(true);
+              form.setFieldsValue({ filter_offline: checked });
+            }}
+          />
+        </Form.Item>
+        <Form.Item
+          name="wt2_cookie"
+          label="Cookie (清除后下次运行投递任务需要重新扫码)"
+        >
           <Input />
         </Form.Item>
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

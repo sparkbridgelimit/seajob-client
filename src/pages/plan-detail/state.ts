@@ -16,6 +16,7 @@ interface State {
   salary_range: number[];
   timeout: number;
   wt2_cookie: string;
+  filter_offline: boolean;
 }
 
 // 初始化 state 的默认值
@@ -33,6 +34,7 @@ const defaultState: State = {
   salary_range: [],
   timeout: 0,
   wt2_cookie: "",
+  filter_offline: false
 };
 
 // 定义 state

@@ -43,6 +43,7 @@ pub struct JobDefineRunRes {
     pub hello_text: String,
     // 运行次数
     pub target_num: i32,
+    pub filter_offline: bool
 }
 
 pub async fn create_task(req: JobDefineRunRequest) -> Result<JobDefineRunRes, ApiError> {

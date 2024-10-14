@@ -67,6 +67,8 @@ pub async fn run_task(
     env::set_var("timeout", param.timeout.to_string());
     env::set_var("target_num", param.target_num.to_string());
     env::set_var("wt2_cookie", param.wt2_cookie.to_string());
+    env::set_var("filter_offline", param.filter_offline.to_string());
+    
 
     let h = match headless {
         true => "true",
