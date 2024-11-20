@@ -52,8 +52,7 @@ export default function RunButton({
     return (
       <Button size="sm" onClick={async () => {
         const path = await invoke("detect_chrome")
-        console.log(path);
-        if (false) {
+        if (path) {
           onOpen();
         } else {
           showChromeModal();
