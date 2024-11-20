@@ -91,7 +91,6 @@ pub fn get_launch_path() -> Result<PathBuf, String> {
             println!("System Chrome not found, attempting to use Fetcher to check installed Chrome. Error: {}", e);
         }
     }
-
     let mut v: &str = "";
     #[cfg(windows)]
     {

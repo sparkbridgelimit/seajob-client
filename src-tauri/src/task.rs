@@ -54,6 +54,12 @@ pub async fn run_task(
     );
     println!("Chrome_path path: {:?}", chrome_path);
 
+    // 获取用户的目录
+    let binding = app.path_resolver().app_data_dir().unwrap();
+    let app_data_dir = binding.to_str().unwrap();
+    let cache_dir = app_data_dir.to_string();
+    println!("cache_dir path: {:?}", cache_dir);
+
     // 设置job_define
     env::set_var("job_task_id", param.job_task_id.to_string());
     env::set_var("keyword", param.keyword.to_string());
@@ -68,7 +74,7 @@ pub async fn run_task(
     env::set_var("target_num", param.target_num.to_string());
     env::set_var("wt2_cookie", param.wt2_cookie.to_string());
     env::set_var("filter_offline", param.filter_offline.to_string());
-    
+    env::set_var("cache_dir", cache_dir);
 
     let h = match headless {
         true => "true",

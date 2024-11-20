@@ -14,6 +14,7 @@ import { parseLog } from "@/helper";
 import { Button } from "@/components/ui/button";
 import LogModal from "./log-modal";
 import ChromeModal from "./chrome-modal";
+import { showRunLogModal } from "@/store/plan";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -50,6 +51,7 @@ function Plan() {
       console.log("job_starting", Number(event.payload));
       runTask(Number(event.payload));
       message.success("任务启动成功");
+      showRunLogModal()
     });
 
     const l6 = listen("job_finish", (event) => {

@@ -16,3 +16,5 @@ $env:CARGO_PROFILE_DEV_BUILD_OVERRIDE_DEBUG="true"
 $env:RUST_BACKTRACE="full"
 $env:RUST_LOG="info"
 pnpm tauri dev
+
+xattr -d com.apple.quarantine HaiTouZhuShou.app

@@ -83,24 +83,24 @@ impl FetcherOptions {
         self.revision = revision;
         self
     }
-    #[must_use]
-    pub fn with_install_dir<P: Into<PathBuf>>(mut self, install_dir: Option<P>) -> Self {
-        match install_dir {
-            Some(dir) => self.install_dir = Some(dir.into()),
-            None => self.install_dir = None,
-        }
-        self
-    }
+    // #[must_use]
+    // pub fn with_install_dir<P: Into<PathBuf>>(mut self, install_dir: Option<P>) -> Self {
+    //     match install_dir {
+    //         Some(dir) => self.install_dir = Some(dir.into()),
+    //         None => self.install_dir = None,
+    //     }
+    //     self
+    // }
     #[must_use]
     pub fn with_allow_download(mut self, allow_download: bool) -> Self {
         self.allow_download = allow_download;
         self
     }
-    #[must_use]
-    pub fn with_allow_standard_dirs(mut self, allow_standard_dirs: bool) -> Self {
-        self.allow_standard_dirs = allow_standard_dirs;
-        self
-    }
+    // #[must_use]
+    // pub fn with_allow_standard_dirs(mut self, allow_standard_dirs: bool) -> Self {
+    //     self.allow_standard_dirs = allow_standard_dirs;
+    //     self
+    // }
 }
 
 #[derive(Default)]

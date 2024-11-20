@@ -90,7 +90,7 @@ export default function RunButton({
               </ModalBody>
               <ModalFooter>
                 <Button
-                  color="danger"
+                  variant="outline"
                   onClick={() => {
                     onClose();
                   }}
