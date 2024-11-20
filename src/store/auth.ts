@@ -21,7 +21,7 @@ const state = proxy({
     if (expiresAt.isBefore(now)) {
       return '您的会员已过期';  // 会员已过期，给出续费提示
     } else {
-      return `您的会员有效，会员将于 ${expiresAt.format('YYYY-MM-DD HH:mm')} 失效`;  // 会员有效，显示失效时间
+      return `会员资格将于 ${expiresAt.format('YYYY-MM-DD HH:mm')} 失效`;  // 会员有效，显示失效时间
     }
   },
   get memberLabelColor() {

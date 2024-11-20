@@ -1,6 +1,6 @@
 import { checkMemberValid } from "@/api/auth";
+import { Button } from "@/components/ui/button";
 import state from "@/store/task";
-import { Button } from "@nextui-org/button";
 import {
   Input,
   Modal,
@@ -14,6 +14,8 @@ import {
 import { message } from "antd";
 import { useState } from "react";
 import { useSnapshot } from "valtio";
+import { invoke } from "@tauri-apps/api";
+import { showChromeModal } from "@/store/plan";
 
 export interface RunButtonProps {
   onConfirm: (count: string, headless: boolean) => void;
@@ -34,10 +36,7 @@ export default function RunButton({
     if (running && runningJobId === jobDefineId) {
       return (
         <Button
-          color="primary"
-          size="sm"
           disabled
-          isLoading
         >
           运行中
         </Button>
@@ -45,13 +44,21 @@ export default function RunButton({
     }
     if (runningJobId) {
       return (
-        <Button color="primary" variant="ghost" size="sm" disabled>
+        <Button variant="ghost" disabled>
           等待中
         </Button>
       );
     }
     return (
-      <Button color="primary" size="sm" onPress={onOpen}>
+      <Button size="sm" onClick={async () => {
+        const path = await invoke("detect_chrome")
+        console.log(path);
+        if (false) {
+          onOpen();
+        } else {
+          showChromeModal();
+        }
+      }}>
         运行
       </Button>
     );
@@ -85,8 +92,7 @@ export default function RunButton({
               <ModalFooter>
                 <Button
                   color="danger"
-                  variant="flat"
-                  onPress={() => {
+                  onClick={() => {
                     onClose();
                   }}
                 >
@@ -94,7 +100,7 @@ export default function RunButton({
                 </Button>
                 <Button
                   color="primary"
-                  onPress={async () => {
+                  onClick={async () => {
                     const valid = await checkMemberValid();
                     if (valid) {
                       onConfirm(count, !isSelected);

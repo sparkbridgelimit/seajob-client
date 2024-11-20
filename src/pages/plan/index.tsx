@@ -6,14 +6,14 @@ import AddJobDefineModal from "./add-job-model";
 import Scan from "../scan";
 import "./index.css";
 import Header from "@/components/header";
-import { Button as NextButton } from "@nextui-org/react";
 import { runTask, stopTask } from "@/store/task";
 import PlanTable from "./plan-table";
 import { fetchJobDefines } from "@/store/job_define";
 import { log_task } from "@/api/job_define";
 import { parseLog } from "@/helper";
-import InstallButton from "./install-button";
-import UpdateButton from "./update-button";
+import { Button } from "@/components/ui/button";
+import LogModal from "./log-modal";
+import ChromeModal from "./chrome-modal";
 
 function Plan() {
   const [qrCode, setQrCode] = useState<string>("");
@@ -119,15 +119,17 @@ function Plan() {
           }}
         >
           <Space>
-            <UpdateButton />
-            <InstallButton />
-            <NextButton
+            {/* <Button
               color="primary"
-              variant="shadow"
-              onClick={() => addJobDefineHandler()}
+              onClick={() => {
+                showChromeModal();
+              }}
             >
+              执行环境检测
+            </Button> */}
+            <Button color="primary" onClick={() => addJobDefineHandler()}>
               添加投递计划
-            </NextButton>
+            </Button>
           </Space>
         </div>
         <PlanTable />
@@ -142,6 +144,8 @@ function Plan() {
         onConfirm={(values) => onAddJobDefineConfirm(values)}
         open={isAddModalOpen}
       ></AddJobDefineModal>
+      <LogModal />
+      <ChromeModal />
     </div>
   );
 }

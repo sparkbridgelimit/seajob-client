@@ -1,7 +1,6 @@
 import { activateCodeConsume } from "@/api/auth";
 import router from "@/router";
 import auth, { actions } from "@/store/auth";
-import { Button } from "@nextui-org/button";
 import {
   Avatar,
   Chip,
@@ -26,6 +25,7 @@ import { message, Space } from "antd";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSnapshot } from "valtio";
+import { Button } from "../ui/button";
 
 export default function Header() {
   const { isLogin, memberLabel, memberLabelColor } = useSnapshot(auth);
@@ -133,10 +133,7 @@ export default function Header() {
   return (
     <>
       <div className="flex justify-between items-center p-8">
-        <div className="flex items-center space-x-2">
-          <img src="/icon.png" alt="海投助手" className="w-10 h-10" />
-          <span className="text-xl font-bold text-gray-700">海投助手</span>
-        </div>
+        <div className="flex items-center space-x-2"></div>
         {isShowUserMenu() ? userMenu : NotAuth}
       </div>
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
@@ -156,8 +153,7 @@ export default function Header() {
               <ModalFooter>
                 <Button
                   color="danger"
-                  variant="flat"
-                  onPress={() => {
+                  onClick={() => {
                     setCode("");
                     onClose();
                   }}
@@ -166,7 +162,7 @@ export default function Header() {
                 </Button>
                 <Button
                   color="primary"
-                  onPress={async () => {
+                  onClick={async () => {
                     if (!code) {
                       return message.info("请输入激活码");
                     }

@@ -1,10 +1,10 @@
+import { Button } from "@/components/ui/button";
 import {
   ModalContent,
   ModalHeader,
   ModalBody,
   Modal,
   useDisclosure,
-  Button,
   Textarea,
 } from "@nextui-org/react";
 import { invoke } from "@tauri-apps/api";
@@ -18,8 +18,7 @@ export default function DetectButton({}) {
     <>
       <Button
         color="primary"
-        variant="shadow"
-        onPress={async () => {
+        onClick={async () => {
           onOpen();
           invoke("detect_chrome").then((res) => {
             console.log(res);

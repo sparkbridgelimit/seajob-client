@@ -1,6 +1,5 @@
 import router from "@/router";
 import {
-  Button,
   Chip,
   Table,
   TableBody,
@@ -18,8 +17,9 @@ import jobDefineState, {
   fetchJobDefines,
 } from "@/store/job_define";
 import { useSnapshot } from "valtio";
-import LogButton from "./log-button";
 import moment from "moment";
+import { Button } from "@/components/ui/button";
+import { showRunLogModal } from "@/store/plan";
 
 const columns = [
   {
@@ -91,9 +91,8 @@ export default function PlanTable() {
               onConfirm={(count, headless) => runJob(item.id, count, headless)}
             />
             <Button
-              color="primary"
               size="sm"
-              variant="ghost"
+              variant="outline"
               onClick={() => router.navigate(`/plan/${item.id}`)}
             >
               编辑
@@ -107,11 +106,21 @@ export default function PlanTable() {
               okText="确认"
               cancelText="取消"
             >
-              <Button color="danger" size="sm" variant="ghost">
+              <Button color="danger" size="sm" variant="outline">
                 删除
               </Button>
             </Popconfirm>
-            <LogButton />
+            <Button
+              color="default"
+              size="sm"
+              variant="outline"
+              className="text-slate-600"
+              onClick={() => {
+                showRunLogModal();
+              }}
+            >
+              日志
+            </Button>
           </Space>
         );
       case "last_run_time":
@@ -120,12 +129,12 @@ export default function PlanTable() {
         }
         return moment(item[columnKey]).format("YYYY-MM-DD HH:mm:ss");
       case "total_apply":
-          if (item[columnKey]) {
-            return item[columnKey];
-          }
-          return "0";
+        if (item[columnKey]) {
+          return item[columnKey];
+        }
+        return "0";
       default:
-        return item[columnKey] || '--';
+        return item[columnKey] || "--";
     }
   }, []);
 

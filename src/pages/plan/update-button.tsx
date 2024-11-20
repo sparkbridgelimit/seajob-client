@@ -1,4 +1,4 @@
-import { Button } from "@nextui-org/button";
+import { Button } from "@/components/ui/button";
 import { relaunch } from "@tauri-apps/api/process";
 import { checkUpdate, installUpdate } from "@tauri-apps/api/updater";
 
@@ -28,7 +28,7 @@ export default function UpdateButton({}) {
     <>
       <Button
         color="primary"
-        onPress={() => {
+        onClick={() => {
           checkForUpdate();
         }}
       >

@@ -4,13 +4,13 @@ import {
   Form,
   Input,
   Slider,
-  Button,
   SliderSingleProps,
   Select,
 } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import cityList from "@/data/city";
 import { Switch } from "@nextui-org/react";
+import { Button } from "@/components/ui/button";
 
 interface AddJobDefineModalProps {
   open: boolean;
@@ -52,7 +52,7 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
         <Button key="back" onClick={onClose}>
           取消
         </Button>,
-        <Button key="submit" type="primary" onClick={() => form.submit()}>
+        <Button key="submit" onClick={() => form.submit()}>
           确定
         </Button>,
       ]}
