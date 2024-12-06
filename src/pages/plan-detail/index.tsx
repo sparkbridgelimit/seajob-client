@@ -40,6 +40,7 @@ export default function PlanDetail() {
   useEffect(() => {
     form.setFieldsValue({
       job_define_name: snap.job_define_name,
+      job_define_desc: snap.job_define_desc,
       hello_text: snap.hello_text,
       keyword: snap.keyword,
       city_code: snap.city_code,
@@ -88,7 +89,14 @@ export default function PlanDetail() {
         <Form.Item
           name="job_define_name"
           label="投递计划名称"
-          rules={[{ required: true, message: "请输入投递计划说明" }]}
+          rules={[{ required: true, message: "请输入投递计划名称" }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="job_define_desc"
+          label="投递计划描述"
+          rules={[{ required: false, message: "请输入投递计划描述" }]}
         >
           <Input />
         </Form.Item>

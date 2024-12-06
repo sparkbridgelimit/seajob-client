@@ -16,19 +16,16 @@ export default function SignIn() {
       return;
     }
     try {
-      await actions.signIn(
-        username,
-        password,
-      );
-      console.log('登陆成功')
+      await actions.signIn(username, password);
+      console.log("登陆成功");
       message.success("登陆成功");
-      // 跳转到首页
-      console.log('跳转到首页')
+  
+      // 仅在登陆成功时跳转到首页
+      console.log("跳转到首页");
       router.navigate("/plan");
-    } catch (error) {
-      message.error("登陆失败，请重试");
+    } catch (error: any) {
+      message.error(error?.message || "登陆失败，请重试");
       console.error("登陆失败:", error);
-    } finally {
     }
   };
 

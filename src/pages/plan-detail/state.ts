@@ -42,13 +42,18 @@ const state = proxy<State>({
   ...defaultState,
 });
 
+type asd = {
+  exclude_company: string;
+  exclude_job: string;
+  key_kills: string;
+  salary_range: string
+}
 // 异步加载 job define detail 的函数
 export async function loadJobDefineDetail(id: string) {
-  // state.loading = true;
   try {
     const res = await api.getJobDefineDetail({
       job_define_id: Number(id),
-    });
+    }) as asd;
     // 转换数据格式
 
     res.exclude_company = JSON.parse(res.exclude_company) || [];

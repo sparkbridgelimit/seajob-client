@@ -3,7 +3,6 @@ import { message, Space } from "antd";
 import { listen } from "@tauri-apps/api/event";
 import { createJobDefine } from "@/api/job_define";
 import AddJobDefineModal from "./add-job-model";
-import Scan from "../scan";
 import "./index.css";
 import Header from "@/components/header";
 import { runTask, stopTask } from "@/store/task";
@@ -14,44 +13,16 @@ import { parseLog } from "@/helper";
 import { Button } from "@/components/ui/button";
 import LogModal from "./log-modal";
 import ChromeModal from "./chrome-modal";
-import { showRunLogModal } from "@/store/plan";
 
 function Plan() {
-  const [qrCode, setQrCode] = useState<string>("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-
+  
   useEffect(() => {
-    const l1 = listen("login-first-randkey", (event) => {
-      console.log(event.payload);
-      setQrCode(event.payload as string);
-      setIsModalOpen(true);
-    });
-
-    const l2 = listen("login-second-key", (event) => {
-      console.log(event.payload);
-      setQrCode(event.payload as string);
-      setIsModalOpen(true);
-    });
-
-    const l3 = listen("scan-success", (event) => {
-      console.log(event.payload);
-      setIsModalOpen(false);
-      setQrCode("");
-    });
-
-    const l4 = listen("scan-failed", (event) => {
-      console.log(event.payload);
-      setIsModalOpen(false);
-      setQrCode("");
-    });
-
     // 启动后将禁用所有的投递计划启动按钮, 防止重复启动, 已启动的任务, 启动按钮变成运行中
     const l5 = listen("job_starting", (event) => {
       console.log("job_starting", Number(event.payload));
       runTask(Number(event.payload));
       message.success("任务启动成功");
-      showRunLogModal()
     });
 
     const l6 = listen("job_finish", (event) => {
@@ -79,10 +50,6 @@ function Plan() {
     });
 
     return () => {
-      l1.then((unlisten) => unlisten());
-      l2.then((unlisten) => unlisten());
-      l3.then((unlisten) => unlisten());
-      l4.then((unlisten) => unlisten());
       l5.then((unlisten) => unlisten());
       l6.then((unlisten) => unlisten());
       l7.then((unlisten) => unlisten());
@@ -121,14 +88,9 @@ function Plan() {
           }}
         >
           <Space>
-            {/* <Button
-              color="primary"
-              onClick={() => {
-                showChromeModal();
-              }}
-            >
-              执行环境检测
-            </Button> */}
+            <Button color="primary" onClick={() => window.location.reload()}>
+              刷新数据
+            </Button>
             <Button color="primary" onClick={() => addJobDefineHandler()}>
               添加投递计划
             </Button>
@@ -136,11 +98,6 @@ function Plan() {
         </div>
         <PlanTable />
       </div>
-      <Scan
-        open={isModalOpen}
-        qrCode={qrCode}
-        onClose={() => setIsModalOpen(false)}
-      ></Scan>
       <AddJobDefineModal
         onClose={() => setIsAddModalOpen(false)}
         onConfirm={(values) => onAddJobDefineConfirm(values)}

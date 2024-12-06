@@ -58,10 +58,10 @@ export const actions = {
       });
       await set_token(data.token);
       state.token = data.token;
-      // 跳转到首页
     } catch (error) {
       console.error("登陆失败:", error);
-    } finally {
+      // 重新抛出异常
+      throw error;
     }
   },
   async signUp(username: string, password: string) {

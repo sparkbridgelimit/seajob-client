@@ -5,14 +5,13 @@ export interface ISignInReq {
   password: string;
 }
 
-export async function signIn(data: ISignInReq) {
-  return request({
+export async function signIn(data: ISignInReq): Promise<any> {
+  return await request({
     path: '/api/f/sign_in',
     data,
     app: 'auth',
-    env: 'PROD'
-  })
-    .then(res => res.data || {});
+    env: 'PROD',
+  });
 }
 
 export interface ISignUpReq {
@@ -26,23 +25,21 @@ export interface ISignUpRes {
 }
 
 export async function signUp(data: ISignUpReq): Promise<ISignUpRes> {
-  return request({
+  return await request({
     app: 'auth',
     env: 'PROD',
     path: '/api/f/sign_up',
     data
-  })
-    .then(res => res.data || {});
+  });
 }
 
 export async function signOut() {
-  return request({
+  return await request({
     app: 'auth',
     env: 'PROD',
     path: '/api/s/sign_out',
     data: {}
-  })
-    .then(res => res.data || {});
+  });
 }
 
 export interface IQueryMemberInfoRes {
@@ -52,23 +49,21 @@ export interface IQueryMemberInfoRes {
 }
 
 export async function queryMemberInfo(): Promise<IQueryMemberInfoRes> {
-  return request({
+  return await request({
     path: '/api/s/member/info',
     data: {},
     app: 'auth',
     env: 'PROD'
-  })
-    .then(res => res.data);
+  });
 }
 
 export async function checkMemberValid(): Promise<boolean> {
-  return request({
+  return await request({
     path: '/api/s/member/check',
     data: {},
     app: 'auth',
     env: 'PROD'
-  })
-    .then(res => res.data);
+  });
 }
 
 export interface IActivateCodeConsumeReq {
@@ -76,13 +71,12 @@ export interface IActivateCodeConsumeReq {
 }
 
 export async function activateCodeConsume({ code }: IActivateCodeConsumeReq): Promise<boolean> {
-  return request({
+  return await request({
     path: '/api/s/activate/consume',
     data: {
       code
     },
     app: 'auth',
     env: 'PROD'
-  })
-    .then(res => res.data || {});
+  });
 }

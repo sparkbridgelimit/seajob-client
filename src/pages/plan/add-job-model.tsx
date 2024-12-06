@@ -49,7 +49,7 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
       open={open}
       onCancel={onClose}
       footer={[
-        <Button key="back" onClick={onClose}>
+        <Button key="back" variant="outline" className="mr-4" onClick={onClose}>
           取消
         </Button>,
         <Button key="submit" onClick={() => form.submit()}>
@@ -84,7 +84,7 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
         <Form.Item
           name="keyword"
           label="岗位关键字(用于搜索岗位)"
-          rules={[{ required: false, message: "请输入岗位关键字" }]}
+          rules={[{ required: true, message: "请输入岗位关键字" }]}
         >
           <Input placeholder="开发、运营、产品经理、销售..." />
         </Form.Item>

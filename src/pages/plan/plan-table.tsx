@@ -10,8 +10,6 @@ import {
 } from "@nextui-org/react";
 import { Popconfirm, Space } from "antd";
 import { useCallback, useEffect } from "react";
-import RunButton from "./run-job-button";
-import { invoke } from "@tauri-apps/api";
 import jobDefineState, {
   deleteJobDefineById,
   fetchJobDefines,
@@ -19,7 +17,11 @@ import jobDefineState, {
 import { useSnapshot } from "valtio";
 import moment from "moment";
 import { Button } from "@/components/ui/button";
+import useBizChain from "@/core/chain/hook";
+import startBiz, { MyContext } from "@/core/chain/biz";
+import { invoke } from "@/utils/invoke";
 import { showRunLogModal } from "@/store/plan";
+import { toast } from "@/hooks/use-toast";
 
 const columns = [
   {
@@ -54,6 +56,7 @@ const columns = [
 
 export default function PlanTable() {
   const state = useSnapshot(jobDefineState);
+  const { Chain, run } = useBizChain<MyContext>(startBiz);
 
   useEffect(() => {
     fetchJobDefines();
@@ -64,14 +67,28 @@ export default function PlanTable() {
     await deleteJobDefineById(id);
   };
 
-  const runJob = async (id: number, count: string, headless: boolean) => {
-    // 处理查看操作，例如跳转到详情页或显示模态框
-    console.log("查看记录的ID:", id, count);
-    await invoke("run_job_define", {
+  const runJob = async (id: number) => {
+    const initialContext: MyContext = {
       id,
-      count: Number(count),
-      headless,
-    });
+    };
+
+    const { success, result, errors = [] } = await run(initialContext);
+    console.log(success, result, errors)
+    if (success) {
+      await invoke("run_job_define", {
+        id,
+        count: Number(result.count),
+        headless: !result.see,
+      });
+      showRunLogModal();
+    } else {
+      toast({
+        title: "任务启动结果",
+        description: errors.map((item, index) => {
+          return <div key={index}>{item.taskName}:{item.error}</div>
+        })
+      })
+    }
   };
 
   // 渲染单元格内容
@@ -86,10 +103,9 @@ export default function PlanTable() {
       case "action":
         return (
           <Space>
-            <RunButton
-              jobDefineId={item.id}
-              onConfirm={(count, headless) => runJob(item.id, count, headless)}
-            />
+            <Button size="sm" variant="outline" onClick={() => runJob(item.id)}>
+              运行
+            </Button>
             <Button
               size="sm"
               variant="outline"
@@ -158,6 +174,7 @@ export default function PlanTable() {
           )}
         </TableBody>
       </Table>
+      <Chain />
     </>
   );
 }

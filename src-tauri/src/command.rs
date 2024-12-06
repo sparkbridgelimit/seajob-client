@@ -26,7 +26,8 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
         .await
         .map_err(|e| e.to_string())?;
     if !scan_success {
-        return Err("First QR code scan failed".to_string());
+        app.emit_all("scan-failed", randkey.clone()).unwrap();
+        return Err("第一次二维码扫描失败".to_string());
     }
 
     // 获取二次key
@@ -44,7 +45,8 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
         .map_err(|e| e.to_string())?;
 
     if !second_scan_success {
-        return Err("Second QR code scan failed".to_string());
+        app.emit_all("scan-failed", second_key.clone()).unwrap();
+        return Err("第二次二维码扫描失败".to_string());
     }
 
     // 等待确认
@@ -80,6 +82,67 @@ async fn gen_and_save_cookie(id: i64, app: AppHandle) -> Result<String, String> 
     .await
     .map_err(|e| e.to_string())?;
     Ok(new_cookie)
+}
+
+#[tauri::command]
+pub async fn check_boss_cookie(id: i64) -> Result<bool, String> {
+    info!("检测用户的cookie是否存在: {}", id);
+
+    // 获取缓存的 cookie
+    let res = match get_last_cookie(JobDefineCookieReq { job_define_id: id }).await {
+        Ok(res) => res,
+        Err(e) => {
+            error!("获取cookie失败: {}", e);
+            return Err(format!("获取cookie失败: {}", e));
+        }
+    };
+
+    // 检查 cookie 是否存在并验证有效性
+    if res.wt2_cookie.is_empty() {
+        info!("未找到缓存的cookie");
+        return Ok(false);
+    }
+
+    if check_auth(&res.wt2_cookie).await.unwrap_or(false) {
+        info!("cookie有效");
+        Ok(true)
+    } else {
+        info!("cookie无效");
+        Ok(false)
+    }
+}
+
+#[tauri::command]
+pub async fn init_boss_cookie(id: i64, app: AppHandle) -> Result<bool, String> {
+    info!("初始化新的cookie: job_define_id={}", id);
+
+    // 生成 cookie
+    let new_cookie = match gen_cookie(app.clone()).await {
+        Ok(cookie) => cookie,
+        Err(e) => {
+            error!("生成cookie失败: {}", e);
+            return Err(format!("生成cookie失败: {}", e));
+        }
+    };
+
+    // 保存 cookie
+    match save_cookie(JobDefineSaveCookieRequest {
+        job_define_id: id,
+        cookie: new_cookie.clone(),
+    })
+    .await
+    {
+        Ok(_) => {
+            info!("cookie保存成功: {}", new_cookie);
+            app.emit_all("scan-success", ()).unwrap();
+            Ok(true) // 生成并保存成功
+        }
+        Err(e) => {
+            error!("保存cookie失败: {}", e);
+            app.emit_all("scan-fail", ()).unwrap();
+            Err(format!("保存cookie失败: {}", e)) // 保存失败
+        }
+    }
 }
 
 #[tauri::command]
@@ -210,17 +273,18 @@ pub async fn install_chrome() -> Result<String, String> {
     // 使用 tokio::spawn_blocking 将阻塞操作放到后台任务
     let result = tokio::task::spawn_blocking(move || {
         // 设置 FetcherOptions
+        #[allow(unused_assignments)]
         let mut v: &str = "";
         #[cfg(windows)]
         {
             v = "1355004"
         }
-    
+
         #[cfg(all(target_os = "macos", target_arch = "aarch64"))]
         {
             v = "1355021"
         }
-    
+
         #[cfg(all(target_os = "macos", not(target_arch = "aarch64")))]
         {
             v = "1355028"

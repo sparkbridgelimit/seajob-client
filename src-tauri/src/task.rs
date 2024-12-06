@@ -1,3 +1,4 @@
+use crate::app_handler::get_app;
 use crate::service::job_define::JobDefineRunRes;
 use crate::helper::remove_quarantine_attribute;
 use log::info;
@@ -55,9 +56,11 @@ pub async fn run_task(
     println!("Chrome_path path: {:?}", chrome_path);
 
     // 获取用户的目录
-    let binding = app.path_resolver().app_data_dir().unwrap();
-    let app_data_dir = binding.to_str().unwrap();
-    let cache_dir = app_data_dir.to_string();
+    let cache_dir = if let Ok(path) = get_user_data_dir(&param.job_task_id.to_string()) {
+        path.to_string_lossy().to_string()
+    } else {
+        String::new() // 如果发生错误，可以替换为空字符串或其他默认值
+    };
     println!("cache_dir path: {:?}", cache_dir);
 
     // 设置job_define
@@ -152,4 +155,20 @@ pub async fn run_task(
     }
 
     return Ok(());
+}
+
+pub fn get_user_data_dir(id: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    // 获取全局的 AppHandle
+    let app_handle = get_app().ok_or("AppHandle 未初始化")?;
+
+    // 获取应用数据目录
+    let app_data_dir = app_handle.path_resolver().app_data_dir().ok_or_else(|| "Failed to resolve resource".to_string())?;
+
+    // 构建用户目录路径
+    let user_dir = app_data_dir.join("user_cache").join(id);
+
+    // 确保用户目录存在
+    std::fs::create_dir_all(&user_dir).map_err(|e| format!("无法创建用户数据目录: {}", e))?;
+
+    Ok(user_dir)
 }

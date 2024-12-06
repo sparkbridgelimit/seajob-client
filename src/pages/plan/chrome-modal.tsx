@@ -54,7 +54,7 @@ export default function ChromeModal({}) {
           {() => (
             <>
               <ModalHeader className="flex flex-col gap-1 text-slate-700">
-                执行环境检测
+                Chrome执行环境安装
               </ModalHeader>
               <ModalBody>
                 {chromePath ? (

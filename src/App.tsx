@@ -1,5 +1,7 @@
 import { RouterProvider } from "react-router-dom";
 import router from "@/router";
+import { QueryClientProvider } from "react-query";
+import queryClient from './lib/react-query';
 
 function App() {
   // // 监听更新可用事件
@@ -20,7 +22,9 @@ function App() {
 
   return (
     <>
-      <RouterProvider router={router} />
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
     </>
   );
 }

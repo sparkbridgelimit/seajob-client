@@ -22,14 +22,14 @@ const jobDefineState = proxy<State>({
 });
 
 export const fetchJobDefines = async () => {
-  getJobDefineList()
-    .then((res) => {
-      jobDefineState.list = res;
-    })
-    .catch((err) => {
-      console.error(err);
-    });
-}
+  try {
+    const jobDefineList = await getJobDefineList();
+    jobDefineState.list = jobDefineList; // 更新状态
+  } catch (error) {
+    console.error('Failed to update job define state:', error);
+  }
+};
+
 
 export const setJobDefines = (list: IJobDefine[]) => {
   jobDefineState.list = list;

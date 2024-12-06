@@ -2,7 +2,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use crate::command::{
-    clear_token, detect_chrome, get_token, install_chrome, run_job_define, set_token, test_bin,
+    check_boss_cookie, clear_token, detect_chrome, get_token, init_boss_cookie, install_chrome,
+    run_job_define, set_token, test_bin,
 };
 use env_logger;
 use log::info;
@@ -10,18 +11,18 @@ use store::init_store;
 use tauri::generate_handler;
 use tauri_plugin_store::StoreBuilder;
 
+mod app_handler;
 mod browser;
 mod command;
+mod emit;
 mod fetcher;
+mod helper;
 mod login;
 mod process;
 mod request;
 mod service;
 mod store;
 mod task;
-mod app_handler;
-mod emit;
-mod helper;
 
 fn main() {
     // 初始化 env_logger
@@ -51,7 +52,9 @@ fn main() {
             clear_token,
             detect_chrome,
             test_bin,
-            install_chrome
+            install_chrome,
+            check_boss_cookie,
+            init_boss_cookie
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

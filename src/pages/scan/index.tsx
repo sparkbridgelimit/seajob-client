@@ -34,10 +34,6 @@ export default function Scan({ open = true, qrCode = "", onClose = () => {}}: IP
                 <span>APP下载</span>
                 <i className="fas fa-question-circle mt-2"></i>
               </div>
-              <div className="flex flex-col items-center">
-                <span>扫码帮助</span>
-                <i className="fas fa-question-circle mt-2"></i>
-              </div>
             </div>
           </div>
         </div>
