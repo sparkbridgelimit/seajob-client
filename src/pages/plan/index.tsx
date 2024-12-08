@@ -13,6 +13,7 @@ import { parseLog } from "@/helper";
 import { Button } from "@/components/ui/button";
 import LogModal from "./log-modal";
 import ChromeModal from "./chrome-modal";
+import { clearRunLog } from "@/store/plan";
 
 function Plan() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -21,6 +22,7 @@ function Plan() {
     // 启动后将禁用所有的投递计划启动按钮, 防止重复启动, 已启动的任务, 启动按钮变成运行中
     const l5 = listen("job_starting", (event) => {
       console.log("job_starting", Number(event.payload));
+      clearRunLog();
       runTask(Number(event.payload));
       message.success("任务启动成功");
     });

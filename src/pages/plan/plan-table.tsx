@@ -75,12 +75,12 @@ export default function PlanTable() {
     const { success, result, errors = [] } = await run(initialContext);
     console.log(success, result, errors)
     if (success) {
+      showRunLogModal();
       await invoke("run_job_define", {
         id,
         count: Number(result.count),
-        headless: !result.see,
+        headless: result.see,
       });
-      showRunLogModal();
     } else {
       toast({
         title: "任务启动结果",

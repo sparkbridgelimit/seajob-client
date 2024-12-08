@@ -1,4 +1,4 @@
-import planState, { hideRunLogModal } from "@/store/plan";
+import planState, { hideRunLogModal, setRunLog } from "@/store/plan";
 import {
   ModalContent,
   ModalHeader,
@@ -7,18 +7,17 @@ import {
   ScrollShadow,
 } from "@nextui-org/react";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useSnapshot } from "valtio";
 
 export default function LogModal({}) {
-  const { runLogModal } = useSnapshot(planState);
+  const { runLogModal, logs } = useSnapshot(planState);
 
-  const [logs, setLogs] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const l1 = listen("run_log", (event) => {
-      setLogs((logs) => [...logs, event.payload as string]);
+      setRunLog(event.payload as string);
     });
     return () => {
       l1.then((unlisten) => unlisten());

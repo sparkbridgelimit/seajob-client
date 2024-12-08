@@ -63,6 +63,9 @@ pub async fn run_task(
     };
     println!("cache_dir path: {:?}", cache_dir);
 
+    // 删除user_data_dir 锁标记
+    let _ = clean_singleton_lock(&param.job_task_id.to_string());
+
     // 设置job_define
     env::set_var("job_task_id", param.job_task_id.to_string());
     env::set_var("keyword", param.keyword.to_string());
@@ -171,4 +174,20 @@ pub fn get_user_data_dir(id: &str) -> Result<PathBuf, Box<dyn std::error::Error>
     std::fs::create_dir_all(&user_dir).map_err(|e| format!("无法创建用户数据目录: {}", e))?;
 
     Ok(user_dir)
+}
+
+/// 清理残留的 SingletonLock 文件
+fn clean_singleton_lock(id: &str) -> Result<(), String> {
+    // 解包 get_user_data_dir 的 Result
+    let user_dir = get_user_data_dir(id).map_err(|e| format!("获取用户数据目录失败: {}", e))?;
+    let lock_file = user_dir.join("SingletonLock");
+
+    if lock_file.exists() {
+        std::fs::remove_file(&lock_file).map_err(|e| {
+            let err_msg = format!("无法删除 SingletonLock 文件: {}", e);
+            err_msg
+        })?;
+        info!("SingletonLock 文件已删除: {:?}", lock_file);
+    }
+    Ok(())
 }

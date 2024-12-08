@@ -115,7 +115,7 @@ export default function Header() {
             </DropdownTrigger>
             <DropdownMenu variant="flat">
               <DropdownItem key="active" onClick={onOpen}>
-                激活码兑换
+                <span className="text-gray-600">激活码兑换</span>
               </DropdownItem>
               <DropdownItem key="check_update" onClick={() => checkForUpdate()}>
                 <span className="text-gray-600">检查更新</span>
@@ -152,7 +152,7 @@ export default function Header() {
               </ModalBody>
               <ModalFooter>
                 <Button
-                  color="danger"
+                  variant="outline"
                   onClick={() => {
                     setCode("");
                     onClose();
