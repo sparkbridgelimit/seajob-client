@@ -25,10 +25,11 @@ pub struct JobDefineRunRequest {
     pub target_num: i32,
 }
 
-#[derive(Deserialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct JobDefineRunRes {
     // job_define
     pub job_task_id: i64,
+    pub job_define_id: i64,
     // job_prefer
     pub keyword: String,
     pub city_code: String,

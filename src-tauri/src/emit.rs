@@ -1,6 +1,6 @@
-use log::info;
+use app::app_handler::get_app;
 use tauri::Manager;
-use crate::app_handler::get_app;
+use log::info;
 
 pub fn send_install_log(message: &str) {
   info!("{}", message);

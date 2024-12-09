@@ -54,6 +54,12 @@ const columns = [
   },
 ];
 
+function getMarketUrl(queryParams = {}) {
+  return `https://www.zhipin.com/web/geek/job?${Object.keys(queryParams)
+    .map((key) => `${key}=${encodeURIComponent(queryParams[key])}`)
+    .join("&")}`;
+}
+
 export default function PlanTable() {
   const state = useSnapshot(jobDefineState);
   const { Chain, run } = useBizChain<MyContext>(startBiz);
@@ -66,6 +72,35 @@ export default function PlanTable() {
     console.log("删除记录的ID:", id);
     await deleteJobDefineById(id);
   };
+
+  const clearDir = async (item: any) => {
+    const res = await invoke("clear_user_data_dir", {
+      id: String(item.id),
+      payload: {},
+    });
+    console.log(res);
+    toast({
+      description: "清除成功"
+    })
+  }
+
+  const showWeb = async (item: any) => {
+    const params = {
+      query: item.keyword,
+      city: item.city_code,
+      page: 1,
+    }
+    const url = getMarketUrl(params);
+    await invoke("launch_browser", {
+      id: String(item.id),
+      task: 'open_browser',
+      payload: {
+        url,
+      },
+      headless: false,
+      autoClose: false,
+    });
+  }
 
   const runJob = async (id: number) => {
     const initialContext: MyContext = {
@@ -105,6 +140,12 @@ export default function PlanTable() {
           <Space>
             <Button size="sm" variant="outline" onClick={() => runJob(item.id)}>
               运行
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => showWeb(item)}>
+              Web
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => clearDir(item)}>
+              清除缓存
             </Button>
             <Button
               size="sm"

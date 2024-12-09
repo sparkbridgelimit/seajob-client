@@ -66,7 +66,6 @@ apiClient.interceptors.request.use(async (config) => {
 // 响应拦截器
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('response', response)
     const { success, error_code } = response.data;
     if (!success && error_code === 401) {
       console.log('handleUnauthorized')
@@ -108,6 +107,5 @@ export async function request<T>({
       `Business Error: ${error_message || 'Unknown error'}`
     );
   }
-  console.log('responseData', responseData)
   return responseData!;
 }

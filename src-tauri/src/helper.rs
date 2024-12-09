@@ -1,5 +1,6 @@
 use std::{path::PathBuf, process::Command};
 
+#[allow(dead_code)]
 pub fn remove_quarantine_attribute(path: &PathBuf) -> Result<(), String> {
     let check_status = Command::new("xattr")
         .args(&["-l", path.to_str().unwrap()])

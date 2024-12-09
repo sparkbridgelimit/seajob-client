@@ -14,20 +14,31 @@ import { Button } from "@/components/ui/button";
 import LogModal from "./log-modal";
 import ChromeModal from "./chrome-modal";
 import { clearRunLog } from "@/store/plan";
+import { toast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
+import {
+  ChallengePayload,
+  isChallengePayload,
+  isJobFinishedPayload,
+  JobFinishedPayload,
+  StdIOMsg,
+  StdIOMsgWithPayload,
+} from "@/types/msg";
+import { invoke } from "@/utils/invoke";
 
 function Plan() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
+
   useEffect(() => {
     // 启动后将禁用所有的投递计划启动按钮, 防止重复启动, 已启动的任务, 启动按钮变成运行中
-    const l5 = listen("job_starting", (event) => {
-      console.log("job_starting", Number(event.payload));
+    const l5 = listen("job_started", (event) => {
+      console.log("job_started", Number(event.payload));
       clearRunLog();
       runTask(Number(event.payload));
       message.success("任务启动成功");
     });
 
-    const l6 = listen("job_finish", (event) => {
+    const l6 = listen("job_finished", (event) => {
       console.log(event.payload);
       stopTask();
       fetchJobDefines();
@@ -51,11 +62,57 @@ function Plan() {
       }
     });
 
+    const l9 = listen(
+      "json_result",
+      async (event: { payload: StdIOMsgWithPayload }) => {
+        console.log("json_result: ", event.payload);
+        const msg = event.payload;
+        // 遇到风控
+        if (isChallengePayload(msg)) {
+          toast({
+            variant: "destructive",
+            title: "触发风控",
+            description: "识别到触发风控, 需要手动进行验证码处理",
+            action: (
+              <ToastAction
+                altText="Try again"
+                onClick={async () => {
+                  // 处理点击事件
+                  console.log(msg.payload.url);
+                  await invoke("launch_browser", {
+                    id: String(msg.payload.job_define_id),
+                    task: "open_browser",
+                    payload: {
+                      url: msg.payload.url,
+                    },
+                    headless: false,
+                    autoClose: false,
+                  });
+                }}
+              >
+                点击处理验证码
+              </ToastAction>
+            ),
+          });
+        }
+        // 运行完成
+        if (isJobFinishedPayload(msg)) {
+          stopTask();
+          fetchJobDefines();
+          toast({
+            description: "任务运行完成",
+          });
+        }
+        console.warn("Unknown message type:", msg.type);
+      }
+    );
+
     return () => {
       l5.then((unlisten) => unlisten());
       l6.then((unlisten) => unlisten());
       l7.then((unlisten) => unlisten());
       l8.then((unlisten) => unlisten());
+      l9.then((unlisten) => unlisten());
     };
   }, []);
 

@@ -1,16 +1,20 @@
-use crate::browser::get_launch_path;
 use crate::emit::send_install_log;
-use crate::fetcher::{Fetcher, FetcherOptions, Revision};
 use crate::login::{self, check_auth};
 use crate::service::job_define::{
     create_task, get_last_cookie, save_cookie, JobDefineCookieReq, JobDefineRunRequest,
     JobDefineSaveCookieRequest,
 };
 use crate::{store, task};
+use std::fs;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Instant;
 
+use app::app_handler::get_app;
+use browser::browser::BrowserInfo;
+use browser::browser_manager::BrowserManager;
+use browser::fetcher::{Fetcher, FetcherOptions, Revision};
+use browser::utils::get_launch_path;
 use log::{error, info};
 use serde_json::Value;
 use tauri::{AppHandle, Manager};
@@ -68,20 +72,6 @@ pub async fn gen_cookie(app: AppHandle) -> Result<String, String> {
     } else {
         Err("wt2字段不存在".to_string())
     }
-}
-
-// 生成并保存新的 cookie
-async fn gen_and_save_cookie(id: i64, app: AppHandle) -> Result<String, String> {
-    let new_cookie = gen_cookie(app.clone()).await?;
-    // 关闭弹窗
-    app.emit_all("scan-success", ()).unwrap();
-    save_cookie(JobDefineSaveCookieRequest {
-        job_define_id: id,
-        cookie: new_cookie.clone(),
-    })
-    .await
-    .map_err(|e| e.to_string())?;
-    Ok(new_cookie)
 }
 
 #[tauri::command]
@@ -153,26 +143,6 @@ pub async fn run_job_define(
     app: AppHandle,
 ) -> Result<i64, String> {
     info!("运行任务的 ID: {}, 目标次数: {}", id, count);
-    // 获取或生成 cookie
-    let _cookie = match get_last_cookie(JobDefineCookieReq { job_define_id: id }).await {
-        Ok(res) => {
-            info!("缓存的cookie: {}", res.wt2_cookie);
-            // 检查 cookie 是否有效
-            if check_auth(&res.wt2_cookie).await.unwrap_or(false) {
-                info!("cookie有效");
-                res.wt2_cookie
-            } else {
-                // 如果无效，生成新的 cookie
-                gen_and_save_cookie(id, app.clone()).await?
-            }
-        }
-        Err(_) => {
-            // 没有 cookie，生成新的 cookie
-            info!("没有cookie, 生成新的 cookie");
-            gen_and_save_cookie(id, app.clone()).await?
-        }
-    };
-
     let run_req = JobDefineRunRequest {
         job_define_id: id,
         target_num: count,
@@ -182,17 +152,19 @@ pub async fn run_job_define(
     let create_task_result = create_task(run_req).await.map_err(|e| e.to_string())?;
 
     info!("任务创建成功: {:?}", create_task_result);
-    app.emit_all("job_starting", id).unwrap();
-    task::run_task(
-        app.clone(),
-        create_task_result,
-        headless,
-        get_launch_path().unwrap(),
-    )
-    .await
-    .map_err(|e| e.to_string())?;
 
-    app.emit_all("job_finish", id).unwrap();
+    // 将任务结果转换为 JSON
+    let json_value: Value = serde_json::to_value(&create_task_result)
+        .map_err(|e| format!("Failed to convert task result to JSON: {}", e))?;
+
+
+    // 执行任务
+    task::run(&id.to_string(), "run", headless, json_value)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    app.emit_all("job_started", id).unwrap();
+
     Ok(id)
 }
 
@@ -323,4 +295,62 @@ pub async fn install_chrome() -> Result<String, String> {
     .map_err(|e| format!("Task failed: {:?}", e))?; // 展开外层的 Result 并处理错误
 
     result // 返回内层的 Result
+}
+
+#[tauri::command]
+pub async fn launch_browser(
+    id: String,
+    task: String,
+    mut payload: Value,
+    headless: Option<bool>,
+    auto_close: Option<bool>
+) -> Result<BrowserInfo, String> {
+    let headless = headless.unwrap_or(false);
+    let auto_close = auto_close.unwrap_or(false);
+    let app = get_app().ok_or("AppHandle 未初始化")?;
+    
+    let job_define_id: i64 = id.parse().map_err(|_| "Invalid ID: unable to parse as i64")?;
+
+    // 获取最新的 cookie
+    let cookie = get_last_cookie(JobDefineCookieReq { job_define_id })
+        .await
+        .map_err(|err| format!("Failed to get last cookie: {}", err))?;
+    
+    payload["wt2Cookie"] = serde_json::Value::String(cookie.wt2_cookie);
+    // 获取 BrowserManager 实例
+    let browser_manager = app.state::<BrowserManager>();
+    browser_manager.start(id, task, payload, headless, auto_close).await
+}
+
+#[tauri::command]
+pub async fn clear_user_data_dir(id: String) -> Result<String, String> {
+    let user_data_dir = browser::utils::get_user_data_dir(&id).map_err(|err| {
+        error!("获取用户数据目录失败: {}", err);
+        format!("获取用户数据目录失败: {}", err)
+    })?;
+
+    if !user_data_dir.exists() {
+        return Err(format!("用户数据目录不存在: {}", user_data_dir.display()));
+    }
+
+    fs::remove_dir_all(&user_data_dir).map_err(|err| {
+        error!("删除用户数据目录失败: {}", err);
+        format!("删除用户数据目录失败: {}", err.to_string())
+    })?;
+
+    Ok(format!("用户数据目录已删除: {}", user_data_dir.display()))
+}
+
+#[tauri::command]
+pub async fn show_user_data_dir(id: String) -> Result<String, String> {
+    let user_data_dir = browser::utils::get_user_data_dir(&id).map_err(|err| {
+        error!("获取用户数据目录失败: {}", err);
+        format!("获取用户数据目录失败: {}", err)
+    })?;
+
+    if !user_data_dir.exists() {
+        return Err(format!("用户数据目录不存在: {}", user_data_dir.display()));
+    }
+    
+    Ok(user_data_dir.to_string_lossy().to_string())
 }
