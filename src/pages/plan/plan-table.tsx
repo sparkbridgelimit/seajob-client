@@ -146,7 +146,7 @@ export default function PlanTable() {
               运行
             </Button>
             <Button size="sm" variant="outline" onClick={() => showWeb(item)}>
-              Web
+              打开浏览器
             </Button>
             <Button size="sm" variant="outline" onClick={() => clearDir(item)}>
               清除缓存
