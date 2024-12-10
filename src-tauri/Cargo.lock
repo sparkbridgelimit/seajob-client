@@ -523,6 +523,7 @@ dependencies = [
  "ureq",
  "walkdir",
  "which 7.0.0",
+ "winreg 0.52.0",
 ]
 
 [[package]]
@@ -4148,7 +4149,6 @@ dependencies = [
  "uuid",
  "walkdir",
  "which 6.0.3",
- "winreg 0.52.0",
  "zip 2.2.0",
 ]
 

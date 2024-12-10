@@ -137,7 +137,6 @@ pub fn default_executable() -> Result<std::path::PathBuf, String> {
 
     #[cfg(windows)]
     {
-        use crate::process::get_chrome_path_from_registry;
 
         if let Some(path) = get_chrome_path_from_registry() {
             if path.exists() {
@@ -240,4 +239,16 @@ pub async fn launch_subprocess(
             error!("{}", err_msg);
             err_msg
         })
+}
+
+#[cfg(windows)]
+use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+
+#[cfg(windows)]
+pub(crate) fn get_chrome_path_from_registry() -> Option<std::path::PathBuf> {
+    RegKey::predef(HKEY_LOCAL_MACHINE)
+        .open_subkey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\chrome.exe")
+        .and_then(|key| key.get_value::<String, _>(""))
+        .map(std::path::PathBuf::from)
+        .ok()
 }
