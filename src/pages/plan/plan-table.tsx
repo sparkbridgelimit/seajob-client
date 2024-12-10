@@ -54,9 +54,13 @@ const columns = [
   },
 ];
 
-function getMarketUrl(queryParams = {}) {
+interface QueryParams {
+  [key: string]: string | number | boolean;
+}
+
+function getMarketUrl(queryParams: QueryParams = {}): string {
   return `https://www.zhipin.com/web/geek/job?${Object.keys(queryParams)
-    .map((key) => `${key}=${encodeURIComponent(queryParams[key])}`)
+    .map((key) => `${key}=${encodeURIComponent(String(queryParams[key]))}`)
     .join("&")}`;
 }
 

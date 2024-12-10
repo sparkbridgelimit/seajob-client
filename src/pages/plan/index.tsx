@@ -17,11 +17,8 @@ import { clearRunLog } from "@/store/plan";
 import { toast } from "@/hooks/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import {
-  ChallengePayload,
   isChallengePayload,
   isJobFinishedPayload,
-  JobFinishedPayload,
-  StdIOMsg,
   StdIOMsgWithPayload,
 } from "@/types/msg";
 import { invoke } from "@/utils/invoke";
