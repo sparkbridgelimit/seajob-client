@@ -18,7 +18,6 @@ mod command;
 mod emit;
 mod helper;
 mod login;
-mod process;
 mod request;
 mod service;
 mod store;
