@@ -30,6 +30,7 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
   const onFinish = (values: any) => {
     console.log("Received values:", values);
     values.salary_range = values.salary_range.map((item: any) => Number(item));
+    values.filter_offline = Boolean(values.filter_offline);
     onConfirm(values);
     form.resetFields();
   };
@@ -126,6 +127,7 @@ const AddJobDefineModal: React.FC<AddJobDefineModalProps> = ({
         <Form.Item
           name="filter_offline"
           label="过滤不在线boss"
+          valuePropName="checked"
         >
           <Switch isSelected={isFilterOfflineBoss} onValueChange={setIsFilterOfflineBoss} />
         </Form.Item>
