@@ -20,6 +20,7 @@ tokio = { version = "1", features = ["full"] }
 ureq = "2.12.1"
 walkdir = "2.5.0"
 which = "7.0.0"
+zip = "2.2.1"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52.0"
